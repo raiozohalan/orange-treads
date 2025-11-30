@@ -1,7 +1,24 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
-    <></>
+    <div className="flex flex-col items-center justify-center gap-4 h-screen">
+      <div className="flex flex-col items-center justify-center gap-4">
+
+        <Image src="/logo.png" alt="Orange Treads" width={254} height={254} />
+        <p className="text-orange-500 p-2 rounded-lg border-2 border-orange-500">Coming Soon</p>
+      </div>
+      <p className="text-4xl font-bold">Iloilo's Best Treads</p>
+      <p className="text-lg text-gray-400">We offer a wide range of shoes for all your needs.</p>
+      <p className="text-lg text-gray-400">We are a team of dedicated professionals who are passionate about providing the best possible service to our customers.</p>
+      <div className="flex flex flex-col items-center justify-center gap-2">
+        <p className="text-lg font-bold text-gray-500">Follow us on:</p>
+        <Link href="https://www.facebook.com/profile.php?id=61577470246423" className="flex items-center gap-2 text-xl text-blue-500 font-bold">
+          <Image src="/facebook/Facebook_Logo_Primary.png" alt="Facebook" width={36} height={36} />
+          Facebook
+        </Link>
+      </div>
+    </div>
   );
 }
