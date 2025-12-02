@@ -1,6 +1,5 @@
-import type { Metadata } from "next";
+import "@/app/globals.css";import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
 // Initialize Firebase (this will be used by client components)
 import "@/firebase/init";
 
@@ -16,7 +15,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Orange Treads - Iloilo's Best Treads",
-  description: "Orange Treads is Iloilo's best treads. We offer a wide range of shoes for all your needs.",
+  description:
+    "Orange Treads is Iloilo's best treads. We offer a wide range of shoes for all your needs.",
 };
 
 export default function RootLayout({
