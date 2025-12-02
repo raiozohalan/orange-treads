@@ -15,7 +15,7 @@
     ]
   },
   "firestore": {
-    "database": "(default)",
+    "database": "orange-treads",
     "location": "asia-southeast1",
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
