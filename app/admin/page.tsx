@@ -60,6 +60,10 @@ const page = () => {
       onSignInError(new Error("Error fetching user data"));
     } finally {
       setLoading(false);
+      setSignInData((prevData) => ({
+        ...prevData,
+        showButtonLoading: false,
+      }));
     }
   };
 
@@ -77,13 +81,6 @@ const page = () => {
       })
       .catch((error) => {
         onSignInError(new Error("Invalid email or password"));
-      })
-      .finally(() => {
-        setLoading(false);
-        setSignInData((prevData) => ({
-          ...prevData,
-          showButtonLoading: false,
-        }));
       });
   };
 
@@ -110,7 +107,7 @@ const page = () => {
           Admin Login
         </h1>
         <Alert {...error} onClose={onCloseError} className="w-full my-1" />
-        <form onSubmit={onSignIn} className="flex flex-col gap-4 w-full">
+        <form method="post" onSubmit={onSignIn} className="flex flex-col gap-4 w-full">
           <TextField
             label="Email"
             name="email"
@@ -162,6 +159,7 @@ const page = () => {
           signInSuccessUrl="/admin"
           onSignInSuccess={onSignInSuccess}
           onSignInError={onSignInError}
+          className={isLoading ? "select-none pointer-events-none " : ""}
         />
       </div>
     </div>

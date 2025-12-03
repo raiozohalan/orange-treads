@@ -13,6 +13,7 @@ interface FirebaseUIProps {
   }>;
   onSignInSuccess?: (user: User) => void;
   onSignInError?: (error: Error) => void;
+  className?: string;
 }
 
 const defaultSignInOptions = [
@@ -33,6 +34,7 @@ export default function FirebaseUI({
   signInOptions = defaultSignInOptions,
   onSignInSuccess,
   onSignInError,
+  className = "",
 }: FirebaseUIProps) {
   const uiRef = useRef<HTMLDivElement>(null);
   const uiInstanceRef = useRef<any>(null);
@@ -98,5 +100,5 @@ export default function FirebaseUI({
     };
   }, [isClient, signInSuccessUrl, signInOptions]);
 
-  return <div ref={uiRef} id="firebaseui-auth-container" />;
+  return <div ref={uiRef} id="firebaseui-auth-container" className={className}/>;
 }
