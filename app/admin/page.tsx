@@ -2,20 +2,46 @@
 
 import { Activity, useState } from "react";
 import FirebaseUI from "@/components/firebase/FirebaseUI";
-import { User } from "firebase/auth";
+import { signInWithEmailAndPassword, User } from "firebase/auth";
 import firebaseFunctions from "@/firebase/firebaseFunctions";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { TextField, Button } from "@/components/common";
-import LoadingSpinner from "@/components/icons/LoadingSpinner";
+import { LoadingSpinner } from "@/components/icons";
+import { auth } from "@/firebase/init";
+import Alert, { AlertProps } from "@/components/common/Alert";
+
+const defaultSignInData = {
+  email: "",
+  password: "",
+  showButtonLoading: false,
+};
 
 const page = () => {
   const router = useRouter();
   const [isLoading, setLoading] = useState<boolean>(false);
+  const [signInData, setSignInData] = useState<{
+    email: string;
+    password: string;
+    showButtonLoading: boolean;
+  }>(defaultSignInData);
+  const [error, setError] = useState<Omit<AlertProps, "onClose">>({
+    type: "error",
+    message: "",
+  });
+
+  const onSignInError = (error: Error) => {
+    setError({
+      type: "error",
+      message: error.message,
+    });
+  };
 
   const onSignInSuccess = async (user: User) => {
     try {
       setLoading(true);
+      setSignInData(defaultSignInData);
+      setError({ type: "error", message: "" });
       const getUser = await firebaseFunctions.getItem("users", user.uid);
 
       if (getUser.permission) {
@@ -28,24 +54,45 @@ const page = () => {
           return;
         }
       } else {
-        // todo: add error message
-        console.log("User does not have a permission");
+        onSignInError(new Error("User does not have a permission"));
       }
     } catch (error) {
-      // todo: add error message
-      console.error("Error fetching user data:", error);
+      onSignInError(new Error("Error fetching user data"));
     } finally {
       setLoading(false);
     }
   };
 
-  const onSignInError = (error: Error) => {
-    console.error("onSignInError", {
-      message: error.message,
-      code: (error as any).code,
-      name: error.name,
-      stack: error.stack,
-    });
+  const onSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    setSignInData((prevData) => ({ ...prevData, showButtonLoading: true }));
+    setError({ type: "error", message: "" });
+    signInWithEmailAndPassword(auth, signInData.email, signInData.password)
+      .then((userCredential) => {
+        console.log("userCredential", userCredential);
+        if (userCredential.user) {
+          onSignInSuccess(userCredential.user);
+        }
+      })
+      .catch((error) => {
+        onSignInError(new Error("Invalid email or password"));
+      })
+      .finally(() => {
+        setLoading(false);
+        setSignInData((prevData) => ({
+          ...prevData,
+          showButtonLoading: false,
+        }));
+      });
+  };
+
+  const handleSignInDataChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSignInData({ ...signInData, [e.target.name]: e.target.value });
+  };
+
+  const onCloseError = () => {
+    setError({ type: "error", message: "" });
   };
 
   return (
@@ -62,26 +109,50 @@ const page = () => {
         <h1 className="text-2xl uppercase font-bold text-center">
           Admin Login
         </h1>
-        <form className="flex flex-col gap-4 w-full">
-          <TextField label="Email" placeholder="Email" disabled={isLoading} />
+        <Alert {...error} onClose={onCloseError} className="w-full my-1" />
+        <form onSubmit={onSignIn} className="flex flex-col gap-4 w-full">
           <TextField
+            label="Email"
+            name="email"
+            value={signInData.email}
+            onChange={handleSignInDataChange}
+            placeholder="Email"
+            disabled={isLoading}
+          />
+          <TextField
+            type="password"
             label="Password"
+            name="password"
+            value={signInData.password}
+            onChange={handleSignInDataChange}
             placeholder="Password"
             disabled={isLoading}
           />
           <Button
+            type="submit"
             size="large"
             roundedSize="medium"
             fullWidth={true}
-            disabled={isLoading}
+            disabled={isLoading || !signInData.email || !signInData.password}
           >
-            Login
+            {isLoading && signInData.showButtonLoading ? (
+              <>
+                <LoadingSpinner className="w-4 h-4 text-white animate-spin" />
+                Signing in...
+              </>
+            ) : (
+              "Sign in"
+            )}
           </Button>
         </form>
         <div className="flex flex-col items-center justify-center gap-2 w-full mt-4">
           <p className="text-sm text-gray-400">Or continue with</p>
         </div>
-        <Activity mode={isLoading ? "visible" : "hidden"}>
+        <Activity
+          mode={
+            isLoading && !signInData.showButtonLoading ? "visible" : "hidden"
+          }
+        >
           <div className="relative w-full min-h-[72px] flex items-center justify-center gap-2 overflow-hidden p-4 rounded-lg">
             <LoadingSpinner className="w-4 h-4 text-white animate-spin" />
             Checking account permissions...
