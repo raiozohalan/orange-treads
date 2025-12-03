@@ -1,8 +1,6 @@
-"use client";
-
 import { initializeApp } from "firebase/app";
 import { getAuth, Auth } from "firebase/auth";
-import { collection, getDocs, getFirestore } from "firebase/firestore";
+import { getFirestore } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {

@@ -1,7 +1,5 @@
 import "@/app/globals.css";import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-// Initialize Firebase (this will be used by client components)
-import "@/firebase/init";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
