@@ -40,7 +40,7 @@ const Button = ({
     <button
       {...props}
       className={classNames(
-        "font-bold uppercase disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none disabled:select-none",
+        "flex items-center justify-center gap-2 font-bold uppercase disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none disabled:select-none",
         "cursor-pointer transition-opacity duration-300 ease-in-out",
         fullWidth ? "w-full" : "",
         buttonVariants[variant],
