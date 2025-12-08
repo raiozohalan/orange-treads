@@ -18,7 +18,50 @@ jobs:
         with:
           node-version: '20'
           cache: 'pnpm'
-      - run: pnpm install --frozen-lockfile && pnpm run build
+      - name: Validate Firebase secrets
+        env:
+          NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
+          NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
+          NEXT_PUBLIC_FIRESTORE_DATABASE: ${{ secrets.NEXT_PUBLIC_FIRESTORE_DATABASE }}
+          NEXT_PUBLIC_FIREBASE_DATABASE_URL: ${{ secrets.NEXT_PUBLIC_FIREBASE_DATABASE_URL }}
+          NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
+          NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
+          NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
+          NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
+          NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID:  ${{ secrets.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID }}
+          NEXT_PUBLIC_RECAPTCHA_V3:  ${{ secrets.NEXT_PUBLIC_RECAPTCHA_V3 }}
+          FIREBASE_SERVICE_ACCOUNT_ORANGE_TREADS: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_ORANGE_TREADS }}
+        run: |
+          echo "Checking presence of client secrets..."
+          [ -z "$NEXT_PUBLIC_FIREBASE_API_KEY" ] && echo "MISSING: NEXT_PUBLIC_FIREBASE_API_KEY" && exit 1 || echo "NEXT_PUBLIC_FIREBASE_API_KEY is present"
+          [ -z "$NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN" ] && echo "MISSING: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN" && exit 1 || echo "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN is present"
+          [ -z "$NEXT_PUBLIC_FIREBASE_PROJECT_ID" ] && echo "MISSING: NEXT_PUBLIC_FIREBASE_PROJECT_ID" && exit 1 || echo "NEXT_PUBLIC_FIREBASE_PROJECT_ID is present"
+          [ -z "$NEXT_PUBLIC_FIREBASE_APP_ID" ] && echo "MISSING: NEXT_PUBLIC_FIREBASE_APP_ID" && exit 1 || echo "NEXT_PUBLIC_FIREBASE_APP_ID is present"
+          echo "Checking service account JSON (project_id/client_email only)..."
+          python3 <<EOF
+          import os, json, sys
+          sa = os.environ.get('FIREBASE_SERVICE_ACCOUNT_ORANGE_TREADS') or ''
+          try:
+            j = json.loads(sa)
+            print("service account OK: project_id=%s client_email=%s" % (j.get('project_id'), j.get('client_email')))
+          except Exception as e:
+            print("INVALID SERVICE ACCOUNT JSON:", e)
+            sys.exit(1)
+          EOF
+      - name: Install and build
+        env:
+          NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
+          NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
+          NEXT_PUBLIC_FIRESTORE_DATABASE: ${{ secrets.NEXT_PUBLIC_FIRESTORE_DATABASE }}
+          NEXT_PUBLIC_FIREBASE_DATABASE_URL: ${{ secrets.NEXT_PUBLIC_FIREBASE_DATABASE_URL }}
+          NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
+          NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
+          NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
+          NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
+          NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID:  ${{ secrets.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID }}
+          NEXT_PUBLIC_RECAPTCHA_V3:  ${{ secrets.NEXT_PUBLIC_RECAPTCHA_V3 }}
+          FIREBASE_SERVICE_ACCOUNT_ORANGE_TREADS: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_ORANGE_TREADS }}
+        run: pnpm install --frozen-lockfile && pnpm run build
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
