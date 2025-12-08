@@ -6,14 +6,14 @@ import { auth } from "../../firebase/init"
 import { User } from "firebase/auth"
 
 interface FirebaseUIProps {
-  signInSuccessUrl?: string;
+  signInSuccessUrl?: string
   signInOptions?: Array<{
-    provider: string;
-    [key: string]: any;
-  }>;
-  onSignInSuccess?: (user: User) => void;
-  onSignInError?: (error: Error) => void;
-  className?: string;
+    provider: string
+    [key: string]: any
+  }>
+  onSignInSuccess?: (user: User) => void
+  onSignInError?: (error: Error) => void
+  className?: string
 }
 
 const defaultSignInOptions = [
@@ -100,5 +100,7 @@ export default function FirebaseUI({
     }
   }, [isClient, signInSuccessUrl, signInOptions])
 
-  return <div ref={uiRef} id="firebaseui-auth-container" className={className}/>
+  return (
+    <div ref={uiRef} id="firebaseui-auth-container" className={className} />
+  )
 }
