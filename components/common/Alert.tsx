@@ -1,6 +1,6 @@
-import React, { Activity } from "react";
-import { Close } from "../icons";
-import classNames from "@/utils/classNames";
+import React, { Activity } from "react"
+import { Close } from "../icons"
+import classNames from "@/utils/classNames"
 
 export interface AlertProps {
   type: "error" | "success" | "warning" | "info";
@@ -14,7 +14,7 @@ const alertVariants = {
   success: "bg-green-500/80 text-white",
   warning: "bg-yellow-500/80 text-white",
   info: "bg-blue-500/80 text-white",
-};
+}
 
 const Alert = ({ type, message, onClose, className = "" }: AlertProps) => {
   return (
@@ -34,7 +34,7 @@ const Alert = ({ type, message, onClose, className = "" }: AlertProps) => {
         </div>
       </div>
     </Activity>
-  );
-};
+  )
+}
 
-export default Alert;
+export default Alert

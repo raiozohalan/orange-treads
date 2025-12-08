@@ -1,6 +1,6 @@
-import { initializeApp } from "firebase/app";
-import { getAuth, Auth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { initializeApp } from "firebase/app"
+import { getAuth, Auth } from "firebase/auth"
+import { getFirestore } from "firebase/firestore"
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -12,24 +12,24 @@ const firebaseConfig = {
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
-};
+}
 
 // Initialize Firebase
 // Check if Firebase is already initialized to avoid duplicate initialization
 // let firebaseApp: FirebaseApp;
 // if (getApps().length === 0) {
-const firebaseApp = initializeApp(firebaseConfig);
+const firebaseApp = initializeApp(firebaseConfig)
 // } else {
 //   firebaseApp = getApps()[0];
 // }
 
 // Initialize Firebase Auth
-export const auth: Auth = getAuth(firebaseApp);
+export const auth: Auth = getAuth(firebaseApp)
 // Initialize Firestore with the named database "orange-treads" as specified in firebase.json
 export const db = getFirestore(
   firebaseApp,
   process.env.NEXT_PUBLIC_FIRESTORE_DATABASE as string
-);
+)
 
 // Export the app instance
-export default firebaseApp;
+export default firebaseApp

@@ -1,13 +1,13 @@
-"use client";
+"use client"
 
-import useReCaptchaV3 from "@/hooks/useReCaptchaV3";
-import React from "react";
+import useReCaptchaV3 from "@/hooks/useReCaptchaV3"
+import React from "react"
 // Initialize Firebase (this will be used by client components)
-import "@/firebase/init";
+import "@/firebase/init"
 
-const template = ({ children }: { children: React.ReactNode }) => {
-  useReCaptchaV3();
-  return children;
-};
+const Template = ({ children }: { children: React.ReactNode }) => {
+  useReCaptchaV3()
+  return children
+}
 
-export default template;
+export default Template

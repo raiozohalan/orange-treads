@@ -1,5 +1,5 @@
-import classNames from "@/utils/classNames";
-import React from "react";
+import classNames from "@/utils/classNames"
+import React from "react"
 
 interface TextFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -18,7 +18,7 @@ const TextField = ({ label, ...props }: TextFieldProps) => {
         )}
       />
     </div>
-  );
-};
+  )
+}
 
-export default TextField;
+export default TextField

@@ -1,2 +1,2 @@
-export { default as Close } from "./Close";
-export { default as LoadingSpinner } from "./LoadingSpinner";
+export { default as Close } from "./Close"
+export { default as LoadingSpinner } from "./LoadingSpinner"

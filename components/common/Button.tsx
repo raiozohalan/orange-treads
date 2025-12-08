@@ -1,22 +1,22 @@
-import classNames from "@/utils/classNames";
-import React from "react";
+import classNames from "@/utils/classNames"
+import React from "react"
 
 const buttonVariants = {
   primary: "bg-blue-500 hover:bg-blue-600 text-white",
   secondary: "bg-gray-500 hover:bg-gray-600 text-white",
-};
+}
 
 const buttonSizes = {
   small: "px-2 py-1 text-sm",
   medium: "px-4 py-2 text-base",
   large: "px-6 py-3 text-lg",
-};
+}
 
 const roundedSizes = {
   small: "rounded-sm",
   medium: "rounded-md",
   large: "rounded-lg",
-};
+}
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children?: React.ReactNode;
@@ -51,7 +51,7 @@ const Button = ({
     >
       {children}
     </button>
-  );
-};
+  )
+}
 
-export default Button;
+export default Button
