@@ -1,8 +1,8 @@
 "use client"
 
-import { Activity, useState } from "react"
+import { Activity, useState, useEffect } from "react"
 import FirebaseUI from "@/components/firebase/FirebaseUI"
-import { signInWithEmailAndPassword, User } from "firebase/auth"
+import { signInWithEmailAndPassword, User, onAuthStateChanged } from "firebase/auth"
 import firebaseFunctions from "@/firebase/firebaseFunctions"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
@@ -21,6 +21,7 @@ const defaultSignInData = {
 const Page = () => {
   const router = useRouter()
   const [isLoading, setLoading] = useState<boolean>(false)
+  const [checkingAuth, setCheckingAuth] = useState<boolean>(true)
   const [signInData, setSignInData] = useState<{
     email: string;
     password: string;
@@ -91,6 +92,43 @@ const Page = () => {
 
   const onCloseError = () => {
     setError({ type: "error", message: "" })
+  }
+
+  // Check if user is already authenticated
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // User is already logged in, check permissions and redirect
+        try {
+          const getUser = await firebaseFunctions.getItem("users", user.uid)
+          if (getUser.permission) {
+            const getPermissions = await firebaseFunctions.getItem(
+              "permissions",
+              getUser.permission
+            )
+            if (getPermissions.adminPortal) {
+              router.push("/admin/dashboard")
+              return
+            }
+          }
+        } catch (err) {
+          // If there's an error checking permissions, allow them to stay on login page
+          console.error("Error checking user permissions:", err)
+        }
+      }
+      setCheckingAuth(false)
+    })
+
+    return () => unsubscribe()
+  }, [router])
+
+  // Show loading while checking authentication
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner className="w-8 h-8 text-white animate-spin" />
+      </div>
+    )
   }
 
   return (
