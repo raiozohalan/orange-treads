@@ -10,6 +10,7 @@ import { TextField, Button } from "@/components/common";
 import { LoadingSpinner } from "@/components/icons";
 import { auth } from "@/firebase/init";
 import Alert, { AlertProps } from "@/components/common/Alert";
+import logo from '@/assets/logo.webp';
 
 const defaultSignInData = {
   email: "",
@@ -98,7 +99,7 @@ const page = () => {
         <Image
           fill
           className="object-contain"
-          src="/logo.png"
+          src={logo.src}
           alt="Orange Treads"
         />
       </div>
