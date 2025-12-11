@@ -7,19 +7,23 @@ permissions:
   checks: write
   contents: read
   pull-requests: write
+
 jobs:
   build_and_preview:
     if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: pnpm/action-setup@v4
         with:
           version: 9
+
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'pnpm'
+          node-version: "20"
+          cache: "pnpm"
+
       - name: Validate Firebase secrets
         env:
           NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
@@ -30,8 +34,8 @@ jobs:
           NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
           NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
           NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
-          NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID:  ${{ secrets.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID }}
-          NEXT_PUBLIC_RECAPTCHA_V3:  ${{ secrets.NEXT_PUBLIC_RECAPTCHA_V3 }}
+          NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID }}
+          NEXT_PUBLIC_RECAPTCHA_V3: ${{ secrets.NEXT_PUBLIC_RECAPTCHA_V3 }}
           FIREBASE_SERVICE_ACCOUNT_ORANGE_TREADS: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_ORANGE_TREADS }}
         run: |
           echo "Checking presence of client secrets..."
@@ -44,12 +48,13 @@ jobs:
           import os, json, sys
           sa = os.environ.get('FIREBASE_SERVICE_ACCOUNT_ORANGE_TREADS') or ''
           try:
-            j = json.loads(sa)
-            print("service account OK: project_id=%s client_email=%s" % (j.get('project_id'), j.get('client_email')))
+              j = json.loads(sa)
+              print("service account OK: project_id=%s client_email=%s" % (j.get('project_id'), j.get('client_email')))
           except Exception as e:
-            print("INVALID SERVICE ACCOUNT JSON:", e)
-            sys.exit(1)
+              print("INVALID SERVICE ACCOUNT JSON:", e)
+              sys.exit(1)
           EOF
+
       - name: Install and build
         env:
           NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
@@ -60,11 +65,13 @@ jobs:
           NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
           NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
           NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
-          NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID:  ${{ secrets.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID }}
-          NEXT_PUBLIC_RECAPTCHA_V3:  ${{ secrets.NEXT_PUBLIC_RECAPTCHA_V3 }}
+          NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID }}
+          NEXT_PUBLIC_RECAPTCHA_V3: ${{ secrets.NEXT_PUBLIC_RECAPTCHA_V3 }}
           FIREBASE_SERVICE_ACCOUNT_ORANGE_TREADS: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_ORANGE_TREADS }}
         run: pnpm install --frozen-lockfile && pnpm run build
-      - uses: FirebaseExtended/action-hosting-deploy@v0
+
+      - name: Deploy to Firebase
+        uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_ORANGE_TREADS }}

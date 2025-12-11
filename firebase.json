@@ -1,18 +1,16 @@
 {
   "hosting": {
     "site": "orange-treads",
-    "public": "out",
+    "source": ".",
     "ignore": [
       "firebase.json",
       "**/.*",
-      "**/node_modules/**"
+      "**/node_modules/**",
+      "functions"
     ],
-    "rewrites": [
-      {
-        "source": "**",
-        "destination": "/index.html"
-      }
-    ]
+    "frameworksBackend": {
+      "region": "asia-east1"
+    }
   },
   "firestore": {
     "database": "orange-treads",
@@ -20,16 +18,6 @@
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
   },
-  "functions": [
-    {
-      "codebase": "default",
-      "predeploy": [
-        "npm --prefix \"$RESOURCE_DIR\" run lint",
-        "npm --prefix \"$RESOURCE_DIR\" run build"
-      ],
-      "source": "functions"
-    }
-  ],
   "emulators": {
     "dataconnect": {
       "dataDir": "dataconnect/.dataconnect/pgliteData"
@@ -37,17 +25,6 @@
   },
   "dataconnect": {
     "source": "dataconnect"
-  },
-  "apphosting": {
-    "backendId": "orange-treads-api",
-    "rootDir": "/",
-    "ignore": [
-      "node_modules",
-      ".git",
-      "firebase-debug.log",
-      "firebase-debug.*.log",
-      "functions"
-    ]
   },
   "storage": {
     "rules": "storage.rules"
