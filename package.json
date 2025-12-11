@@ -5,8 +5,10 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "postbuild": "mkdir -p .next/standalone/.next && cp -r .next/static .next/standalone/.next/static && cp -r public .next/standalone/public 2>/dev/null || echo 'public folder missing, skipped'",
     "start": "next start",
-    "serve": "npx serve out",
+    "start-build": "node .next/standalone/server.js",
+    "serve:firebase": "firebase emulators:start --only hosting",
     "lint": "eslint"
   },
   "dependencies": {
