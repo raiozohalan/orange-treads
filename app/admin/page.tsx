@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { TextField, Button } from "@/components/common"
 import { LoadingSpinner } from "@/components/icons"
-import { auth } from "@/firebase/init"
+import { getClientAuth } from "@/firebase/init"
 import Alert, { AlertProps } from "@/components/common/Alert"
 import logo from '@/assets/logo.webp'
 
@@ -17,6 +17,8 @@ const defaultSignInData = {
   password: "",
   showButtonLoading: false,
 }
+
+const auth = getClientAuth()
 
 const Page = () => {
   const router = useRouter()
@@ -70,6 +72,10 @@ const Page = () => {
   }
 
   const onSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
+    if(!auth) {
+      onSignInError(new Error("Firebase is not initialized"))
+      return
+    }
     e.preventDefault()
     setLoading(true)
     setSignInData((prevData) => ({ ...prevData, showButtonLoading: true }))
@@ -96,6 +102,9 @@ const Page = () => {
 
   // Check if user is already authenticated
   useEffect(() => {
+    if(!auth) {
+      return
+    }
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         // User is already logged in, check permissions and redirect

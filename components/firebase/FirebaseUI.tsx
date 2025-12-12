@@ -2,7 +2,7 @@
 
 import "firebaseui/dist/firebaseui.css"
 import { useEffect, useRef, useState } from "react"
-import { auth } from "../../firebase/init"
+import { getClientAuth } from "../../firebase/init"
 import { User } from "firebase/auth"
 
 interface FirebaseUIProps {
@@ -28,6 +28,8 @@ const defaultSignInOptions = [
   //   provider: "email",
   // },
 ]
+
+const auth = getClientAuth()
 
 export default function FirebaseUI({
   signInSuccessUrl = "/",
