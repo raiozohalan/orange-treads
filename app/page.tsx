@@ -2,6 +2,8 @@ import Image from "next/image"
 import Link from "next/link"
 import logo from "@/assets/logo.webp"
 import facebookLogo from "@/assets/facebook/Facebook_Logo_Primary.webp"
+// Initialize Firebase (this will be used by client components)
+import "@/firebase/init"
 
 export default function Home() {
   return (
