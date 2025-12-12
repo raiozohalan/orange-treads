@@ -1,15 +1,17 @@
 "use client"
 
-import firebaseApp from '@/firebase/init'
+import { getFirebaseApp } from '@/firebase/init'
 import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check'
 import { useEffect, useRef } from 'react'
+
+const firebaseApp = getFirebaseApp()
 
 const useReCaptchaV3 = () => {
     const initialized = useRef(false)
 
     useEffect(() => {
         // Only initialize on client side
-        if (typeof window === 'undefined') return
+        if (typeof window === 'undefined' || !firebaseApp) return
 
         // Prevent duplicate initialization
         if (initialized.current) return
