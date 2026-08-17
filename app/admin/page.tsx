@@ -2,7 +2,11 @@
 
 import { Activity, useState, useEffect } from "react"
 import FirebaseUI from "@/components/firebase/FirebaseUI"
-import { signInWithEmailAndPassword, User, onAuthStateChanged } from "firebase/auth"
+import {
+  signInWithEmailAndPassword,
+  User,
+  onAuthStateChanged,
+} from "firebase/auth"
 import firebaseFunctions from "@/firebase/firebaseFunctions"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
@@ -10,7 +14,7 @@ import { TextField, Button } from "@/components/common"
 import { LoadingSpinner } from "@/components/icons"
 import { getClientAuth } from "@/firebase/init"
 import Alert, { AlertProps } from "@/components/common/Alert"
-import logo from '@/assets/logo.webp'
+import logo from "@/assets/logo.webp"
 
 const defaultSignInData = {
   email: "",
@@ -25,9 +29,9 @@ const Page = () => {
   const [isLoading, setLoading] = useState<boolean>(false)
   const [checkingAuth, setCheckingAuth] = useState<boolean>(true)
   const [signInData, setSignInData] = useState<{
-    email: string;
-    password: string;
-    showButtonLoading: boolean;
+    email: string
+    password: string
+    showButtonLoading: boolean
   }>(defaultSignInData)
   const [error, setError] = useState<Omit<AlertProps, "onClose">>({
     type: "error",
@@ -72,7 +76,7 @@ const Page = () => {
   }
 
   const onSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
-    if(!auth) {
+    if (!auth) {
       onSignInError(new Error("Firebase is not initialized"))
       return
     }
@@ -80,16 +84,23 @@ const Page = () => {
     setLoading(true)
     setSignInData((prevData) => ({ ...prevData, showButtonLoading: true }))
     setError({ type: "error", message: "" })
-    signInWithEmailAndPassword(auth, signInData.email, signInData.password)
-      .then((userCredential) => {
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        signInData.email,
+        signInData.password
+      )
+      if (userCredential) {
         console.log("userCredential", userCredential)
         if (userCredential.user) {
           onSignInSuccess(userCredential.user)
         }
-      })
-      .catch((err) => {
-        onSignInError(new Error("Invalid email or password"))
-      })
+      }
+    } catch (error) {
+      onSignInError(new Error("Invalid email or password"))
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleSignInDataChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -102,7 +113,7 @@ const Page = () => {
 
   // Check if user is already authenticated
   useEffect(() => {
-    if(!auth) {
+    if (!auth) {
       return
     }
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -155,7 +166,11 @@ const Page = () => {
           Admin Login
         </h1>
         <Alert {...error} onClose={onCloseError} className="w-full my-1" />
-        <form method="post" onSubmit={onSignIn} className="flex flex-col gap-4 w-full">
+        <form
+          method="post"
+          onSubmit={onSignIn}
+          className="flex flex-col gap-4 w-full"
+        >
           <TextField
             label="Email"
             name="email"
