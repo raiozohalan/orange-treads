@@ -12,16 +12,18 @@ import {
   setDoc,
   Query,
   DocumentData,
+  DocumentReference,
   getDoc,
+  where,
+  WhereFilterOp,
 } from "firebase/firestore"
 import { getClientDB } from "./init"
-import { UserData } from "@/types/firestore"
 
 const db = getClientDB()
 
-const addItem = async (
+const addItem = async <T extends Record<string, any>>(
   path: string,
-  item: Omit<UserData, "id">
+  item: T
 ): Promise<string | null> => {
   if (!db) {
     return null
@@ -68,22 +70,40 @@ const getItems = async (
     return []
   }
   const querySnapshot = await getDocs(collection(db, table))
-  return querySnapshot.docs.map((doc) =>
-    Object.fromEntries(Object.entries(doc.data() || {}))
-  )
+  return querySnapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...Object.fromEntries(Object.entries(doc.data() || {})),
+  }))
 }
 
 const queryItems = async (
   table: string,
-  query: Query
+  firestoreQuery: Query
 ): Promise<Array<Record<string, any>> | null> => {
   if (!db) {
     return []
   }
-  const querySnapshot = await getDocs(query as Query<DocumentData>)
-  return querySnapshot.docs.map((doc) =>
-    Object.fromEntries(Object.entries(doc.data() || {}))
-  )
+  const querySnapshot = await getDocs(firestoreQuery as Query<DocumentData>)
+  return querySnapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...Object.fromEntries(Object.entries(doc.data() || {})),
+  }))
+}
+
+// Convenience wrapper for the common case: query a collection where a field
+// matches a value (or a DocumentReference, e.g. group_id === doc ref).
+// Usage: getItemsWhere("spin_wheel_prices", "group_id", "==", groupRef)
+const getItemsWhere = async (
+  table: string,
+  field: string,
+  op: WhereFilterOp,
+  value: unknown
+): Promise<Array<Record<string, any>> | null> => {
+  if (!db) {
+    return []
+  }
+  const q = query(collection(db, table), where(field, op, value))
+  return queryItems(table, q)
 }
 
 // Real-time updates
@@ -96,23 +116,24 @@ const subscribeToItems = (
   }
   const q = query(collection(db, table))
   return onSnapshot(q, (querySnapshot) => {
-    const items = querySnapshot.docs.map((doc) =>
-      Object.fromEntries(Object.entries(doc.data() || {}))
-    )
+    const items = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...Object.fromEntries(Object.entries(doc.data() || {})),
+    }))
     callback(items)
   })
 }
 
-const updateUser = async (
+const updateItem = async (
   table: string,
   id: string,
-  data: Partial<UserData>
+  data: Record<string, any>
 ) => {
   if (!db) {
     return
   }
-  const userRef = doc(db, table, id)
-  const result = await updateDoc(userRef, data)
+  const itemRef = doc(db, table, id)
+  const result = await updateDoc(itemRef, data)
   return result
 }
 
@@ -124,14 +145,25 @@ const deleteItem = async (table: string, id: string): Promise<void> => {
   return result
 }
 
+// Returns a DocumentReference for a given collection + id, useful for
+// building `where("field", "==", ref)` queries or writing a ref field.
+const getRef = (table: string, id: string): DocumentReference | null => {
+  if (!db) {
+    return null
+  }
+  return doc(db, table, id)
+}
+
 const firebaseFunctions = {
   addItem,
   getItem,
   getItems,
+  getItemsWhere,
   subscribeToItems,
-  updateUser,
+  updateItem,
   deleteItem,
   queryItems,
+  getRef,
 }
 
 export default firebaseFunctions
