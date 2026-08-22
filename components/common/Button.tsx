@@ -18,13 +18,26 @@ const roundedSizes = {
   large: "rounded-lg",
 }
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+// Built-in command keywords, plus support for custom "--foo" commands
+type ButtonCommand =
+  | "show-modal"
+  | "close"
+  | "request-close"
+  | "show-popover"
+  | "hide-popover"
+  | "toggle-popover"
+  | (string & {})
+
+interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>{
   children?: React.ReactNode;
   variant?: keyof typeof buttonVariants;
-  size: keyof typeof buttonSizes;
-  roundedSize: keyof typeof roundedSizes;
+  size?: keyof typeof buttonSizes;
+  roundedSize?: keyof typeof roundedSizes;
   fullWidth?: boolean;
   className?: string;
+  command?: ButtonCommand;
+  commandfor?: string; // ID of the target element for the command
 }
 
 const Button = ({
@@ -34,10 +47,12 @@ const Button = ({
   roundedSize = "medium",
   fullWidth = false,
   className = "",
+  type = "button",
   ...props
 }: ButtonProps) => {
   return (
     <button
+      type={type}
       {...props}
       className={classNames(
         "flex items-center justify-center gap-2 font-bold uppercase disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none disabled:select-none",
