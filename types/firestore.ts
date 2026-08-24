@@ -15,3 +15,4 @@ export interface Permissions {
   editAccount: boolean;
   viewAccount: boolean;
 }
+

@@ -1,31 +1,13 @@
 "use client"
 
+import {
+  WheelGroup,
+  WheelGroupInput,
+  WheelGroupWithPrices,
+  WheelPrice,
+  WheelPriceInput,
+} from "@/types/spin-wheel"
 import firebaseFunctions from "./firebaseFunctions"
-
-export interface WheelGroup {
-  id: string
-  name: string
-  description: string
-  isActive: boolean
-}
-
-export interface WheelPrice {
-  id: string
-  name: string
-  color: string
-  percentage: string
-  image: string
-  groupId: string
-  isActive: boolean
-}
-
-// Input types for create/update (no `id`, since that's assigned by Firestore
-// or passed separately for updates)
-export type WheelGroupInput = Omit<WheelGroup, "id">
-export type WheelPriceInput = Omit<WheelPrice, "id">
-export interface WheelGroupWithPrices extends WheelGroup {
-  prices: WheelPrice[]
-}
 
 const GROUP_COLLECTION = "spin_wheel_group"
 const PRICE_COLLECTION = "spin_wheel_prices"
@@ -68,7 +50,9 @@ export async function getPricesByGroupId(
 /**
  * Fetch all spin wheel groups with prices from Firestore.
  */
-export async function getWheelGroupWithPrices(): Promise<WheelGroupWithPrices[]> {
+export async function getWheelGroupWithPrices(): Promise<
+  WheelGroupWithPrices[]
+> {
   const items = await firebaseFunctions.getItems(GROUP_COLLECTION)
   const groups = (items ?? []) as WheelGroupWithPrices[]
 
