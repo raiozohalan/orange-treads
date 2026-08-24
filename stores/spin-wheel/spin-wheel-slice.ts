@@ -7,6 +7,7 @@ export interface SpinWheelSlice {
   currentGroup: WheelGroupWithPrices | null
   setCurrentGroup: (group: WheelGroupWithPrices | null) => void
   setCurrentGroupPrices: (prices: WheelPrice[]) => void
+  setGroupPrices: (id: string, prices: WheelPrice) => void
 }
 
 export const initialSpinWheelSlice: SpinWheelSlice = {
@@ -16,6 +17,7 @@ export const initialSpinWheelSlice: SpinWheelSlice = {
   currentGroup: null,
   setCurrentGroup: () => {},
   setCurrentGroupPrices: () => {},
+  setGroupPrices: () => {},
 }
 
 export const createSpinWheelSlice = (set: any): SpinWheelSlice => ({
@@ -36,4 +38,10 @@ export const createSpinWheelSlice = (set: any): SpinWheelSlice => ({
         currentGroup: { ...state.currentGroup, prices },
       }
     }),
+  setGroupPrices: (id, prices) =>
+    set((state: SpinWheelSlice) => ({
+      groupsWithPrices: state.groupsWithPrices.map((group) =>
+        group.id === id ? { ...group, prices: [...group.prices, prices] } : group
+      ),
+    })),
 })
