@@ -9,8 +9,8 @@ export interface WheelPrice {
   id: string
   name: string
   color: string
-  percentage: string
-  image: string
+  percentage: number
+  image?: string
   groupId: string
   isActive: boolean
 }
