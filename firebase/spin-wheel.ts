@@ -7,7 +7,7 @@ import {
   WheelPrice,
   WheelPriceInput,
 } from "@/types/spin-wheel"
-import firebaseFunctions from "./firebaseFunctions"
+import firebaseFunctions from "./firebase-functions"
 
 const GROUP_COLLECTION = "spin_wheel_group"
 const PRICE_COLLECTION = "spin_wheel_prices"

@@ -7,7 +7,7 @@ import {
   User,
   onAuthStateChanged,
 } from "firebase/auth"
-import firebaseFunctions from "@/firebase/firebaseFunctions"
+import firebaseFunctions from "@/firebase/firebase-functions"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { TextField, Button } from "@/components/common"

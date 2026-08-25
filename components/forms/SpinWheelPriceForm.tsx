@@ -3,7 +3,7 @@
 import React, { useState } from "react"
 import { Button, TextField } from "../common"
 import ToggleSwitch from "../common/ToogleSwitch"
-import { addWheelPrice } from "@/firebase/spinWheel"
+import { addWheelPrice } from "@/firebase/spin-wheel"
 import Alert, { AlertProps } from "../common/Alert"
 import { LoadingSpinner } from "../icons"
 import { WheelPriceInput } from "@/types/spin-wheel"
