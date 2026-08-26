@@ -3,6 +3,7 @@
 import { initializeApp, getApps, FirebaseApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
 
 // Prevent Firebase from running during SSR
 export function getFirebaseApp(): FirebaseApp | null {
@@ -42,4 +43,11 @@ export function getClientDB() {
     app,
     process.env.NEXT_PUBLIC_FIRESTORE_DATABASE as string
   );
+}
+
+// Safe Storage getter
+export function getClientStorage() {
+  const app = getFirebaseApp();
+  if (!app) return null;
+  return getStorage(app);
 }

@@ -9,20 +9,23 @@ import { LoadingSpinner } from "../icons"
 import { WheelPriceInput } from "@/types/spin-wheel"
 import { useAppStore } from "@/providers/app-store-provider"
 import Select from "../common/Select"
+import firebaseStorageFunctions from "@/firebase/firebase-storage"
 
 const InitialGroup = {
   name: "",
   color: "#ff0000",
-  percentage: "30",
+  percentage: 30,
   image: "",
   groupId: "",
   isActive: false,
 }
 
+type Price = Omit<WheelPriceInput, "image"> & { image?: File | string }
+
 const SpinWheelPriceForm = () => {
   const groups = useAppStore((state) => state.groupsWithPrices)
   const setGroupPrices = useAppStore((state) => state.setGroupPrices)
-  const [price, setPrice] = useState<WheelPriceInput>(InitialGroup)
+  const [price, setPrice] = useState<Price>(InitialGroup)
   const [isSaving, setIsSaving] = useState<boolean>(false)
   const [error, setError] = useState<Omit<AlertProps, "onClose">>({
     type: "error",
@@ -33,25 +36,53 @@ const SpinWheelPriceForm = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const target = e.target
+
+    let newValue: string | boolean | File | number = target.value
+    
+    if("files" in target && target?.files && target?.files?.length > 0) {
+      newValue = target.files[0]
+    } else if (target.type === "checkbox" && "checked" in target) {
+      newValue = target.checked
+    } else if (target.type === "range") {
+      newValue = parseInt(target.value, 10)
+    }
+
     setPrice((prev) => ({
       ...prev,
-      [target.name]:
-        target.type === "checkbox" && "checked" in target
-          ? target.checked
-          : target.value,
+      [target.name]: newValue,
     }))
   }
 
   const handleOnSubmit = async () => {
     try {
       setIsSaving(true)
-      const res = await addWheelPrice({ ...price })
+      let imageUrl: string = ""
+      if (typeof price.image !== "string" && price.image instanceof File) {
+        const imageId = crypto.randomUUID()
+        const savedImage = await firebaseStorageFunctions.saveFile(
+          `spin_wheel_prices/${imageId}-${price.image.name}`,
+          price.image
+        )
+        console.log("Saved image URL:", savedImage)
+        if (savedImage) {
+          imageUrl = savedImage
+        } else {
+          setError({
+            type: "error",
+            message: "Failed to upload image",
+          })
+          return
+        }
+      }
+
+      const res = await addWheelPrice({ ...price, image: imageUrl || (price.image as string) })
       if (res) {
         setPrice(InitialGroup)
-        setGroupPrices(price.groupId, {
-          id: res,
-          ...price,
-        })
+        // setGroupPrices(price.groupId, {
+        //   id: res,
+        //   image: imageUrl,
+        //   ...price,
+        // })
         setError({
           type: "success",
           message: "New Spin Wheel price is added successfully",
@@ -129,13 +160,16 @@ const SpinWheelPriceForm = () => {
               name="name"
               placeholder="Enter name"
               required
+              value={price.name}
               onChange={handleFormChange}
               className="text-gray-200"
               containerClassName="[&_label]:text-gray-100"
             />
             <TextField
+              type="file"
               label="Image URL"
               name="image"
+              accept="image/png, image/jpeg, image/jpg, image/webp"
               placeholder="Enter image URL"
               onChange={handleFormChange}
               className="text-gray-200"
@@ -147,10 +181,10 @@ const SpinWheelPriceForm = () => {
                 label="Color"
                 name="color"
                 placeholder="Enter color"
+                value={price.color}
                 onChange={handleFormChange}
                 containerClassName="[&_label]:text-gray-100"
                 className="w-10! h-6! px-px py-0!"
-                defaultValue={price.color}
               />
               <ToggleSwitch
                 label="Is Active"
@@ -167,7 +201,7 @@ const SpinWheelPriceForm = () => {
                 name="percentage"
                 placeholder="Enter percentage"
                 onChange={handleFormChange}
-                defaultValue={price.percentage}
+                value={price.percentage}
                 min={5}
                 max={100}
                 className="text-gray-200 -mt-2"

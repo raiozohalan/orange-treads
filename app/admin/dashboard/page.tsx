@@ -46,6 +46,9 @@ const page = () => {
             setCurrentGroup(selectedGroup || null)
           }}
         >
+          <option value="" disabled>
+            Select a group
+          </option>
           {groups.map((group) => (
             <option key={group.id} value={group.id}>
               {group.name}
