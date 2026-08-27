@@ -38,8 +38,8 @@ const SpinWheelPriceForm = () => {
     const target = e.target
 
     let newValue: string | boolean | File | number = target.value
-    
-    if("files" in target && target?.files && target?.files?.length > 0) {
+
+    if ("files" in target && target?.files && target?.files?.length > 0) {
       newValue = target.files[0]
     } else if (target.type === "checkbox" && "checked" in target) {
       newValue = target.checked
@@ -63,7 +63,6 @@ const SpinWheelPriceForm = () => {
           `spin_wheel_prices/${imageId}-${price.image.name}`,
           price.image
         )
-        console.log("Saved image URL:", savedImage)
         if (savedImage) {
           imageUrl = savedImage
         } else {
@@ -75,14 +74,14 @@ const SpinWheelPriceForm = () => {
         }
       }
 
-      const res = await addWheelPrice({ ...price, image: imageUrl || (price.image as string) })
+      const res = await addWheelPrice({ ...price, image: imageUrl })
       if (res) {
+        setGroupPrices(price.groupId, {
+          ...price,
+          id: res,
+          image: imageUrl,
+        })
         setPrice(InitialGroup)
-        // setGroupPrices(price.groupId, {
-        //   id: res,
-        //   image: imageUrl,
-        //   ...price,
-        // })
         setError({
           type: "success",
           message: "New Spin Wheel price is added successfully",

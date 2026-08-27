@@ -41,7 +41,17 @@ export const createSpinWheelSlice = (set: any): SpinWheelSlice => ({
   setGroupPrices: (id, prices) =>
     set((state: SpinWheelSlice) => ({
       groupsWithPrices: state.groupsWithPrices.map((group) =>
-        group.id === id ? { ...group, prices: [...group.prices, prices] } : group
+        group.id === id
+          ? { ...group, prices: [...group.prices, prices] }
+          : group
       ),
+      ...(state.currentGroup?.id === id
+        ? {
+            currentGroup: {
+              ...state.currentGroup,
+              prices: [...state.currentGroup.prices, prices],
+            },
+          }
+        : {}),
     })),
 })

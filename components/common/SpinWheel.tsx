@@ -2,9 +2,7 @@
 
 import { WheelPrice } from "@/types/spin-wheel"
 import classNames from "@/utils/classNames"
-import Image from "next/image"
 import { useMemo, useRef, useState, useCallback } from "react"
-import logo from "@/assets/logo.webp"
 
 /**
  * SpinWheel
@@ -33,6 +31,7 @@ interface Segment {
   color: string
   start: number
   end: number
+  image: string
 }
 
 const DEFAULT_COLORS = [
@@ -84,6 +83,7 @@ function buildSegments(prizes: Prize[]): Segment[] {
       color: prize.color || DEFAULT_COLORS[i % DEFAULT_COLORS.length],
       start: cursor,
       end: cursor + sweep,
+      image: prize.image || "", // use the resolved image URL
     }
     cursor += sweep
     return segment
@@ -221,25 +221,35 @@ export default function SpinWheel({
                   stroke="#fff"
                   strokeWidth={1.5}
                 />
-                <text
-                  x={namePos.x}
-                  y={namePos.y}
-                  fill="#fff"
-                  fontSize={Math.max(10, size * 0.035)}
-                  fontWeight={500}
-                  textAnchor="middle"
-                  dominantBaseline="middle"
-                  transform={`rotate(${mid}, ${namePos.x}, ${namePos.y})`}
+                <g
+                  transform={`translate(${namePos.x}, ${namePos.y}) rotate(${mid})`}
                 >
-                  <Image
-                    src={logo}
-                    alt={seg.prize.name}
-                    width={40}
-                    height={40}
-                    className="w-10 h-10 bg-red-500"
-                  />
-                  {seg.prize.name}
-                </text>
+                  {seg.image && (
+                    <>
+                      {/* Prize image */}
+                      <image
+                        href={seg.image}
+                        x={-20}
+                        y={-32}
+                        width={40}
+                        height={40}
+                        preserveAspectRatio="xMidYMid slice"
+                      />
+                    </>
+                  )}
+                  {/* Prize name */}
+                  <text
+                    x={0}
+                    y={25}
+                    fill="#fff"
+                    fontSize={Math.max(10, size * 0.035)}
+                    fontWeight={500}
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                  >
+                    {seg.prize.name}
+                  </text>
+                </g>
               </g>
             )
           })}
