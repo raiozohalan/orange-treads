@@ -6,6 +6,7 @@ interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   label?: string
   error?: string
   containerClassName?: string
+  fullWidth?: boolean
 }
 
 const Select = ({
@@ -15,6 +16,7 @@ const Select = ({
   containerClassName,
   id,
   children,
+  fullWidth,
   ...props
 }: SelectProps) => {
   const generatedId = React.useId()
@@ -22,7 +24,11 @@ const Select = ({
 
   return (
     <div
-      className={classNames("flex flex-col gap-1 w-full", containerClassName)}
+      className={classNames(
+        "flex flex-col gap-1",
+        fullWidth && "w-full",
+        containerClassName
+      )}
     >
       {label && (
         <label htmlFor={selectId} className="text-sm text-gray-400">

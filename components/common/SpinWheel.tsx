@@ -24,6 +24,7 @@ export interface SpinWheelProps {
   size?: number
   spinDurationMs?: number
   disabled?: boolean
+  className?: string
 }
 
 interface Segment {
@@ -53,20 +54,19 @@ const DEFAULT_COLORS = [
 export function pickWeightedPrize(prizes: Prize[]): Prize | null {
   if (!prizes || prizes.length === 0) return null
 
-  const totalWeight = prizes.reduce(
-    (sum, p) => sum + Math.max(0, p.percentage),
-    0
-  )
+  const weights = prizes.map((p) => Math.max(0, p.percentage || 0))
+  const totalWeight = weights.reduce((sum, w) => sum + w, 0)
+
   if (totalWeight <= 0) {
     // fall back to uniform random if no weights are set
     return prizes[Math.floor(Math.random() * prizes.length)]
   }
 
-  let roll = Math.random() * totalWeight
-  for (const prize of prizes) {
-    const weight = Math.max(0, prize.percentage)
-    if (roll < weight) return prize
-    roll -= weight
+  const roll = Math.random() * totalWeight
+  let cumulative = 0
+  for (let i = 0; i < prizes.length; i++) {
+    cumulative += weights[i]
+    if (roll < cumulative) return prizes[i]
   }
   return prizes[prizes.length - 1] // safety net for float rounding
 }
@@ -143,6 +143,7 @@ export default function SpinWheel({
   size = 320,
   spinDurationMs = 4200,
   disabled = false,
+  className,
 }: SpinWheelProps) {
   const [rotation, setRotation] = useState(0)
   const [spinning, setSpinning] = useState(false)
@@ -184,7 +185,12 @@ export default function SpinWheel({
   }, [spinning, disabled, prizes, segments, spinDurationMs, onSpinEnd])
 
   return (
-    <div className="flex flex-col items-center gap-4 w-fit">
+    <div
+      className={classNames(
+        "flex flex-col items-center gap-4 w-fit h-fit p-2",
+        className
+      )}
+    >
       <div className="relative" style={{ width: size, height: size }}>
         {/* pointer */}
         <div
