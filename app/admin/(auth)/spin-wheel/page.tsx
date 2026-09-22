@@ -86,25 +86,19 @@ const page = () => {
               {currentGroup?.description}
             </p>
           </div>
-          <div className="flex-none flex flex-col gap-1 w-full">
+          <div className="flex-none grid grid-cols-2 gap-x-4 gap-y-3 w-full">
             {currentGroup?.prices.map((price) => (
               <div
                 key={price.id}
-                className="flex items-start justify-between gap-3 bg-gray-900 px-3 py-2 rounded-md"
+                className="flex items-start justify-between gap-3 bg-gray-900 p-4 rounded-lg"
               >
-                <div className="w-10 h-auto">
+                <div className="w-16 h-auto">
                   {price.image && (
                     <img src={price.image} className="w-full h-auto" />
                   )}
                 </div>
                 <div className="flex-1 flex flex-col items-start justify-stretch gap-1">
                   <label className="flex-none flex items-center gap-1 font-bold">
-                    <div
-                      className="inline-block h-4 w-4 rounded-md"
-                      style={{
-                        backgroundColor: price.color,
-                      }}
-                    />
                     {price.name}
                   </label>
                   <div className="relative flex-1 flex items-center w-full bg-gray-700 rounded-full overflow-hidden">
@@ -118,12 +112,27 @@ const page = () => {
                       {price.percentage}% Chance
                     </span>
                   </div>
+                  <div className="flex items-center gap-1">
+                    <b className="mr-1">Color:</b>
+                    <div
+                      className="inline-block h-4 w-4 rounded-md"
+                      style={{
+                        backgroundColor: price.color,
+                      }}
+                    />
+                    <span>{price.color}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <b className="mr-1">Status:</b>{" "}
+                    <span>{price.isActive ? "Active" : "Inactive"}</span>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         </div>
         <SpinWheel
+          size={400}
           prizes={currentGroup?.prices || []}
           onSpinEnd={(prize) => console.log("Winner:", prize)}
           className="flex-none"
