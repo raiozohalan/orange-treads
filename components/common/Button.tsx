@@ -3,7 +3,7 @@ import React from "react"
 
 const buttonVariants = {
   primary: "bg-blue-500 hover:bg-blue-600 text-white",
-  secondary: "bg-gray-500 hover:bg-gray-600 text-white",
+  secondary: "bg-gray-700/60 hover:bg-gray-700 text-white",
 }
 
 const buttonSizes = {

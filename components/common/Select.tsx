@@ -35,7 +35,7 @@ const Select = ({
           {label}
         </label>
       )}
-      <div className="relative w-full">
+      <div className="relative w-full flex items-center">
         <select
           {...props}
           id={selectId}
@@ -53,7 +53,7 @@ const Select = ({
           aria-hidden="true"
           viewBox="0 0 20 20"
           fill="none"
-          className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400"
+          className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400"
         >
           <path
             d="M5 7.5L10 12.5L15 7.5"
