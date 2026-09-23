@@ -3,13 +3,13 @@ import React from "react"
 
 const buttonVariants = {
   primary: "bg-blue-500 hover:bg-blue-600 text-white",
-  secondary: "bg-gray-500 hover:bg-gray-600 text-white",
+  secondary: "bg-gray-700/60 hover:bg-gray-700 text-white",
 }
 
 const buttonSizes = {
   small: "px-2 py-1 text-sm",
-  medium: "px-4 py-2 text-base",
-  large: "px-6 py-3 text-lg",
+  medium: "px-3 py-1.5 text-sm",
+  large: "px-4 py-2 text-sm",
 }
 
 const roundedSizes = {
