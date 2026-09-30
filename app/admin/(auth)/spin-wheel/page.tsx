@@ -15,12 +15,13 @@ import { useAppStore } from "@/providers/app-store-provider"
 import Select from "@/components/common/Select"
 import SpinWheel from "@/components/common/SpinWheel"
 import { Edit, LifeBuoy, Plus, Trash } from "react-feather"
-import { WheelPrize } from "@/types/spin-wheel"
+import { WheelGroup, WheelPrize } from "@/types/spin-wheel"
 import ConfirmationModal from "@/components/common/ConfirmationModal"
 import getDialogActions from "@/utils/dialog"
 
 const auth = getClientAuth()
 type CurrentPrize = WheelPrize & { type: "delete" | "upsert" }
+type GroupAction = "add" | "update" | "delete"
 
 const page = () => {
   const groups = useAppStore((state) => state.groupsWithPrizes)
@@ -28,7 +29,8 @@ const page = () => {
   const currentGroup = useAppStore((state) => state.currentGroup)
   const setCurrentGroup = useAppStore((state) => state.setCurrentGroup)
   const [currentPrize, setCurrentPrize] = useState<CurrentPrize | null>(null)
-  console.log("=====>groups",groups)
+  const [groupAction, setGroupAction] = useState<GroupAction | null>(null)
+
   const getGroupAndPrizes = async () => {
     const group = await getWheelGroupWithPrizes()
     setGroup(group)
@@ -54,7 +56,6 @@ const page = () => {
     }
   }
 
-  console.log("====",currentGroup?.prizes)
   return (
     <>
       <ConfirmationModal
@@ -69,7 +70,13 @@ const page = () => {
         onSuccessAwait={handleDeletePrize}
         onCancel={() => setCurrentPrize(null)}
       />
-      <SpinWheelGroupForm />
+      <SpinWheelGroupForm
+        open={!["delete",null].includes(groupAction)}
+        data={groupAction === "update" ? currentGroup : null}
+        onClose={() => {
+          setGroupAction(null)
+        }}
+      />
       <SpinWheelPrizeForm
         open={currentPrize?.type === "upsert"}
         data={currentPrize}
@@ -105,8 +112,10 @@ const page = () => {
             <Button
               variant="secondary"
               size="small"
-              popoverTarget="spin-wheel-group-form"
               className="text-sm gap-1! pr-2.5 capitalize! text-gray-300!"
+              onClick={() => {
+                setGroupAction("add")
+              }}
             >
               <Plus className="w-4 h-4" /> Add Group
             </Button>
