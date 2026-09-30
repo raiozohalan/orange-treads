@@ -5,12 +5,12 @@ export interface WheelGroup {
   isActive: boolean
 }
 
-export interface WheelPrice {
+export interface WheelPrize {
   id: string
   name: string
   color: string
   percentage: number
-  image?: string
+  image?: string | File
   groupId: string
   isActive: boolean
 }
@@ -18,7 +18,7 @@ export interface WheelPrice {
 // Input types for create/update (no `id`, since that's assigned by Firestore
 // or passed separately for updates)
 export type WheelGroupInput = Omit<WheelGroup, "id">
-export type WheelPriceInput = Omit<WheelPrice, "id">
-export interface WheelGroupWithPrices extends WheelGroup {
-  prices: WheelPrice[]
+export type WheelPrizeInput = Omit<WheelPrize, "id">
+export interface WheelGroupWithPrizes extends WheelGroup {
+  prizes: WheelPrize[]
 }

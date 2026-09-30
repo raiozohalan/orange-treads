@@ -3,14 +3,14 @@
 import {
   WheelGroup,
   WheelGroupInput,
-  WheelGroupWithPrices,
-  WheelPrice,
-  WheelPriceInput,
+  WheelGroupWithPrizes,
+  WheelPrize,
+  WheelPrizeInput,
 } from "@/types/spin-wheel"
 import firebaseFunctions from "./firebase-functions"
 
 const GROUP_COLLECTION = "spin_wheel_group"
-const PRICE_COLLECTION = "spin_wheel_prices"
+const PRIZE_COLLECTION = "spin_wheel_prizes"
 
 /**
  * Fetch a single spin wheel group by its document ID.
@@ -29,41 +29,40 @@ export async function getWheelGroup(
 }
 
 /**
- * Fetch all spin wheel prices belonging to a given group ID.
- * Assumes spin_wheel_prices.groupId is stored as a document reference
+ * Fetch all spin wheel prizes belonging to a given group ID.
+ * Assumes spin_wheel_prizes.groupId is stored as a document reference
  * pointing to /spin_wheel_group/{groupId}, as seen in your Firestore data.
  * @param groupId - e.g. "XfQbC7gqYZsYuhbuBABE"
  */
-export async function getPricesByGroupId(
+export async function getPrizesByGroupId(
   groupId: string
-): Promise<WheelPrice[]> {
+): Promise<WheelPrize[]> {
   const items = await firebaseFunctions.getItemsWhere(
-    PRICE_COLLECTION,
+    PRIZE_COLLECTION,
     "groupId",
     "==",
     groupId
   )
-
-  return (items ?? []) as WheelPrice[]
+  return (items ?? []) as WheelPrize[]
 }
 
 /**
- * Fetch all spin wheel groups with prices from Firestore.
+ * Fetch all spin wheel groups with prizes from Firestore.
  */
-export async function getWheelGroupWithPrices(): Promise<
-  WheelGroupWithPrices[]
+export async function getWheelGroupWithPrizes(): Promise<
+  WheelGroupWithPrizes[]
 > {
   const items = await firebaseFunctions.getItems(GROUP_COLLECTION)
-  const groups = (items ?? []) as WheelGroupWithPrices[]
+  const groups = (items ?? []) as WheelGroupWithPrizes[]
 
-  const groupsWithPrices = await Promise.all(
+  const groupsWithPrizes = await Promise.all(
     groups.map(async (group) => {
-      const prices = await getPricesByGroupId(group.id)
-      return { ...group, prices }
+      const prizes = await getPrizesByGroupId(group.id)
+      return { ...group, prizes }
     })
   )
 
-  return groupsWithPrices
+  return groupsWithPrizes
 }
 
 // ---------------------------------------------------------------------------
@@ -103,8 +102,8 @@ export async function updateWheelGroup(
 
 /**
  * Delete a spin wheel group by ID.
- * NOTE: this does not cascade-delete the prices that reference this group.
- * Use deleteWheelGroupWithPrices if you want that behavior.
+ * NOTE: this does not cascade-delete the prizes that reference this group.
+ * Use deleteWheelGroupWithPrizes if you want that behavior.
  */
 export async function deleteWheelGroup(groupId: string): Promise<boolean> {
   try {
@@ -117,13 +116,13 @@ export async function deleteWheelGroup(groupId: string): Promise<boolean> {
 }
 
 /**
- * Delete a spin wheel group along with every price that references it.
+ * Delete a spin wheel group along with every prize that references it.
  */
-export async function deleteWheelGroupWithPrices(
+export async function deleteWheelGroupWithPrizes(
   groupId: string
 ): Promise<boolean> {
-  const prices = await getPricesByGroupId(groupId)
-  await Promise.all(prices.map((price) => deleteWheelPrice(price.id)))
+  const prizes = await getPrizesByGroupId(groupId)
+  await Promise.all(prizes.map((prize) => deleteWheelPrize(prize.id)))
   return await deleteWheelGroup(groupId)
 }
 
@@ -132,28 +131,28 @@ export async function deleteWheelGroupWithPrices(
 // ---------------------------------------------------------------------------
 
 /**
- * Create a new spin wheel price entry under a given group.
- * Returns the new price's document ID, or null if creation failed.
- * @param price - all price fields except `id` and `groupId`
+ * Create a new spin wheel prize entry under a given group.
+ * Returns the new prize's document ID, or null if creation failed.
+ * @param prize - all prize fields except `id` and `groupId`
  */
-export async function addWheelPrice(
-  price: WheelPriceInput
+export async function addWheelPrize(
+  prize: WheelPrizeInput
 ): Promise<string | null> {
-  const newId = await firebaseFunctions.addItem(PRICE_COLLECTION, price)
+  const newId = await firebaseFunctions.addItem(PRIZE_COLLECTION, prize)
 
   return newId ?? null
 }
 
 /**
- * Update an existing spin wheel price by ID.
+ * Update an existing spin wheel prize by ID.
  * If `groupId` is provided in the payload, it's converted to a
  * DocumentReference before saving (so callers pass a plain string).
  */
-export async function updateWheelPrice(
-  priceId: string,
-  price: Partial<Omit<WheelPriceInput, "groupId">> & { groupId?: string }
+export async function updateWheelPrize(
+  prizeId: string,
+  prize: Partial<Omit<WheelPrizeInput, "groupId">> & { groupId?: string }
 ): Promise<boolean> {
-  const { groupId, ...rest } = price
+  const { groupId, ...rest } = prize
   const payload: Record<string, unknown> = { ...rest }
 
   if (groupId) {
@@ -165,23 +164,23 @@ export async function updateWheelPrice(
   }
 
   try {
-    await firebaseFunctions.updateItem(PRICE_COLLECTION, priceId, payload)
+    await firebaseFunctions.updateItem(PRIZE_COLLECTION, prizeId, payload)
     return true
   } catch (e) {
-    console.error("Error updating wheel price: ", e)
+    console.error("Error updating wheel prize: ", e)
     return false
   }
 }
 
 /**
- * Delete a spin wheel price by ID.
+ * Delete a spin wheel prize by ID.
  */
-export async function deleteWheelPrice(priceId: string): Promise<boolean> {
+export async function deleteWheelPrize(prizeId: string): Promise<boolean> {
   try {
-    await firebaseFunctions.deleteItem(PRICE_COLLECTION, priceId)
+    await firebaseFunctions.deleteItem(PRIZE_COLLECTION, prizeId)
     return true
   } catch (e) {
-    console.error("Error deleting wheel price: ", e)
+    console.error("Error deleting wheel prize: ", e)
     return false
   }
 }

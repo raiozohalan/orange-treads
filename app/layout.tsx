@@ -2,6 +2,7 @@ import "@/app/globals.css"
 import { AppStoreProvider } from "@/providers/app-store-provider"
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
+import { Toaster } from "sonner"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,7 +30,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AppStoreProvider>{children}</AppStoreProvider>
+        <AppStoreProvider>
+          <Toaster id="top-center" visibleToasts={5} position="top-center"/>
+          <Toaster id="bottom-right" visibleToasts={5} position="bottom-right"/>
+          {children}
+        </AppStoreProvider>
       </body>
     </html>
   )

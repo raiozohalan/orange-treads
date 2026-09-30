@@ -17,8 +17,8 @@ const InitialGroup: WheelGroupInput = {
 }
 
 const SpinWheelGroupForm = () => {
-  const setNewGroupsWithPrices = useAppStore(
-    (state) => state.setNewGroupsWithPrices
+  const setNewGroupsWithPrizes = useAppStore(
+    (state) => state.setNewGroupsWithPrizes
   )
   const [group, setGroup] = useState<WheelGroupInput>(InitialGroup)
   const [isSaving, setIsSaving] = useState<boolean>(false)
@@ -45,10 +45,10 @@ const SpinWheelGroupForm = () => {
       setIsSaving(true)
       const res = await addWheelGroup(group)
       if (res) {
-        setNewGroupsWithPrices({
+        setNewGroupsWithPrizes({
           id: res,
           ...group,
-          prices: [],
+          prizes: [],
         })
         setGroup(InitialGroup)
         setError({
@@ -80,7 +80,7 @@ const SpinWheelGroupForm = () => {
     <dialog
       id="spin-wheel-group-form"
       popover="manual"
-      className="bg-black/70 w-screen h-screen"
+      className="w-screen h-screen bg-transparent"
     >
       <div className="flex items-center justify-center w-full h-full">
         <div className="flex flex-col items-center justify-center w-96 py-4 px-6 bg-gray-700 rounded-lg">

@@ -1,9 +1,11 @@
-import React, { ReactNode, useState } from "react"
+import React, { ReactNode, useEffect, useState } from "react"
 import Button from "./Button"
 import getDialogActions from "@/utils/dialog"
 import { LoadingSpinner } from "../icons"
+import Dialog from "./Dialog"
 
 interface ConfirmationModalProps {
+  open?: boolean
   onCancel?: () => void
   onSuccess?: () => void
   onSuccessAwait?: () => Promise<void>
@@ -15,6 +17,7 @@ const MODAL_ID = "confirmation-modal"
 const dialogActions = getDialogActions(MODAL_ID)
 
 const ConfirmationModal = ({
+  open,
   onCancel,
   onSuccess,
   onSuccessAwait,
@@ -22,6 +25,13 @@ const ConfirmationModal = ({
   content,
 }: ConfirmationModalProps) => {
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    if (open) {
+      dialogActions.open()
+    }
+  }, [open])
+
   const handleModalSuccess = async () => {
     if (onSuccess) {
       onSuccess()
@@ -45,29 +55,27 @@ const ConfirmationModal = ({
   }
 
   return (
-    <dialog id={MODAL_ID} className="bg-[rgba(0,0,0,0.4)] w-screen h-screen">
-      <div className="flex items-center justify-center w-screen h-screen">
-        <div className="flex flex-col items-start gap-5 bg-[#212122] max-w-1/3 px-6 py-8 rounded-lg border border-[#3c3d40] shadow-2xl">
-          <label className="font-bold text-base text-white leading-0">
-            {title}
-          </label>
-          <div className="text-gray-300">{content}</div>
-          <div className="w-full flex items-center justify-end gap-2">
-            <Button
-              variant="secondary"
-              onClick={handleModalCancel}
-              disabled={loading}
-            >
-              No
-            </Button>
-            <Button onClick={handleModalSuccess} disabled={loading}>
-              {loading && <LoadingSpinner className="w-4 h-4 animate-spin" />}
-              Yes
-            </Button>
-          </div>
+    <Dialog id={MODAL_ID} popover="manual">
+      <div className="dialog-content flex flex-col items-start gap-5 max-w-1/3 px-6 py-8 shadow-2xl">
+        <label className="font-bold text-base text-white leading-0">
+          {title}
+        </label>
+        <div className="text-gray-300">{content}</div>
+        <div className="w-full flex items-center justify-end gap-2">
+          <Button
+            variant="secondary"
+            onClick={handleModalCancel}
+            disabled={loading}
+          >
+            No
+          </Button>
+          <Button onClick={handleModalSuccess} disabled={loading}>
+            {loading && <LoadingSpinner className="w-4 h-4 animate-spin" />}
+            Yes
+          </Button>
         </div>
       </div>
-    </dialog>
+    </Dialog>
   )
 }
 

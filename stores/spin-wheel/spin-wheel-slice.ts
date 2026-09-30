@@ -1,55 +1,55 @@
-import { WheelGroupWithPrices, WheelPrice } from "@/types/spin-wheel"
+import { WheelGroupWithPrizes, WheelPrize } from "@/types/spin-wheel"
 
 export interface SpinWheelSlice {
-  groupsWithPrices: WheelGroupWithPrices[]
-  setGroupsWithPrices: (groups: WheelGroupWithPrices[]) => void
-  setNewGroupsWithPrices: (group: WheelGroupWithPrices) => void
-  currentGroup: WheelGroupWithPrices | null
-  setCurrentGroup: (group: WheelGroupWithPrices | null) => void
-  setCurrentGroupPrices: (prices: WheelPrice[]) => void
-  setGroupPrices: (id: string, prices: WheelPrice) => void
+  groupsWithPrizes: WheelGroupWithPrizes[]
+  setGroupsWithPrizes: (groups: WheelGroupWithPrizes[]) => void
+  setNewGroupsWithPrizes: (group: WheelGroupWithPrizes) => void
+  currentGroup: WheelGroupWithPrizes | null
+  setCurrentGroup: (group: WheelGroupWithPrizes | null) => void
+  setCurrentGroupPrizes: (prizes: WheelPrize[]) => void
+  setGroupPrizes: (id: string, prizes: WheelPrize) => void
 }
 
 export const initialSpinWheelSlice: SpinWheelSlice = {
-  groupsWithPrices: [],
-  setGroupsWithPrices: () => {},
-  setNewGroupsWithPrices: () => {},
+  groupsWithPrizes: [],
+  setGroupsWithPrizes: () => {},
+  setNewGroupsWithPrizes: () => {},
   currentGroup: null,
   setCurrentGroup: () => {},
-  setCurrentGroupPrices: () => {},
-  setGroupPrices: () => {},
+  setCurrentGroupPrizes: () => {},
+  setGroupPrizes: () => {},
 }
 
 export const createSpinWheelSlice = (set: any): SpinWheelSlice => ({
-  groupsWithPrices: [],
-  setGroupsWithPrices: (groups) => set({ groupsWithPrices: groups }),
-  setNewGroupsWithPrices: (group) =>
+  groupsWithPrizes: [],
+  setGroupsWithPrizes: (groups) => set({ groupsWithPrizes: groups }),
+  setNewGroupsWithPrizes: (group) =>
     set((state: SpinWheelSlice) => ({
-      groupsWithPrices: [...state.groupsWithPrices, group],
+      groupsWithPrizes: [...state.groupsWithPrizes, group],
     })),
   currentGroup: null,
   setCurrentGroup: (group) => set({ currentGroup: group }),
-  setCurrentGroupPrices: (prices) =>
+  setCurrentGroupPrizes: (prizes) =>
     set((state: SpinWheelSlice) => {
       if (!state.currentGroup) {
         return state
       }
       return {
-        currentGroup: { ...state.currentGroup, prices },
+        currentGroup: { ...state.currentGroup, prizes },
       }
     }),
-  setGroupPrices: (id, prices) =>
+  setGroupPrizes: (id, prizes) =>
     set((state: SpinWheelSlice) => ({
-      groupsWithPrices: state.groupsWithPrices.map((group) =>
+      groupsWithPrizes: state.groupsWithPrizes.map((group) =>
         group.id === id
-          ? { ...group, prices: [...group.prices, prices] }
+          ? { ...group, prizes: [...group.prizes, prizes] }
           : group
       ),
       ...(state.currentGroup?.id === id
         ? {
             currentGroup: {
               ...state.currentGroup,
-              prices: [...state.currentGroup.prices, prices],
+              prizes: [...state.currentGroup.prizes, prizes],
             },
           }
         : {}),

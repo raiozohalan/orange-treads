@@ -85,14 +85,14 @@ const queryItems = async (
   }
   const querySnapshot = await getDocs(firestoreQuery as Query<DocumentData>)
   return querySnapshot.docs.map((doc) => ({
-    id: doc.id,
     ...Object.fromEntries(Object.entries(doc.data() || {})),
+    id: doc.id,
   }))
 }
 
 // Convenience wrapper for the common case: query a collection where a field
 // matches a value (or a DocumentReference, e.g. group_id === doc ref).
-// Usage: getItemsWhere("spin_wheel_prices", "group_id", "==", groupRef)
+// Usage: getItemsWhere("spin_wheel_prizes", "group_id", "==", groupRef)
 const getItemsWhere = async (
   table: string,
   field: string,
