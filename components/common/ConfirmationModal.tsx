@@ -5,6 +5,7 @@ import { LoadingSpinner } from "../icons"
 import Dialog from "./Dialog"
 
 interface ConfirmationModalProps {
+  id?: string
   open?: boolean
   onCancel?: () => void
   onSuccess?: () => void
@@ -14,9 +15,9 @@ interface ConfirmationModalProps {
 }
 
 const MODAL_ID = "confirmation-modal"
-const dialogActions = getDialogActions(MODAL_ID)
 
 const ConfirmationModal = ({
+  id = MODAL_ID,
   open,
   onCancel,
   onSuccess,
@@ -24,6 +25,7 @@ const ConfirmationModal = ({
   title,
   content,
 }: ConfirmationModalProps) => {
+  const dialogActions = getDialogActions(id)
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
@@ -55,7 +57,7 @@ const ConfirmationModal = ({
   }
 
   return (
-    <Dialog id={MODAL_ID} popover="manual">
+    <Dialog id={id} popover="manual">
       <div className="dialog-content flex flex-col items-start gap-5 max-w-1/3 px-6 py-8 shadow-2xl">
         <label className="font-bold text-base text-white leading-0">
           {title}
