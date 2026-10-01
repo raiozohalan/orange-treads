@@ -92,7 +92,6 @@ const Page = () => {
         signInData.password
       )
       if (userCredential) {
-        console.log("userCredential", userCredential)
         if (userCredential.user) {
           onSignInSuccess(userCredential.user)
         }
