@@ -29,19 +29,13 @@ export async function getWheelGroup(
 }
 
 /**
- * Fetch all spin wheel prizes belonging to a given group ID.
- * Assumes spin_wheel_prizes.groupId is stored as a document reference
- * pointing to /spin_wheel_group/{groupId}, as seen in your Firestore data.
- * @param groupId - e.g. "XfQbC7gqYZsYuhbuBABE"
+ * Fetch spin wheel prizes by their Firestore document IDs.
+ * @param prizeIds - IDs of documents in the spin_wheel_prizes collection
  */
-export async function getPrizesByGroupId(
-  groupId: string
-): Promise<WheelPrize[]> {
-  const items = await firebaseFunctions.getItemsWhere(
+export async function getItemsByIds(prizeIds: string[]): Promise<WheelPrize[]> {
+  const items = await firebaseFunctions.getItemsByIds(
     PRIZE_COLLECTION,
-    "groupId",
-    "==",
-    groupId
+    prizeIds
   )
   return (items ?? []) as WheelPrize[]
 }
@@ -54,15 +48,22 @@ export async function getWheelGroupWithPrizes(): Promise<
 > {
   const items = await firebaseFunctions.getItems(GROUP_COLLECTION)
   const groups = (items ?? []) as WheelGroupWithPrizes[]
-
   const groupsWithPrizes = await Promise.all(
     groups.map(async (group) => {
-      const prizes = await getPrizesByGroupId(group.id)
+      const prizes = await getItemsByIds(group.prizeIds)
       return { ...group, prizes }
     })
   )
 
   return groupsWithPrizes
+}
+
+/**
+ * Fetch all spin wheel prizes from Firestore.
+ */
+export async function getWheelPrizes(): Promise<WheelPrize[]> {
+  const items = await firebaseFunctions.getItems(PRIZE_COLLECTION)
+  return items?.length ? (items as WheelPrize[]) : []
 }
 
 // ---------------------------------------------------------------------------
@@ -118,13 +119,13 @@ export async function deleteWheelGroup(groupId: string): Promise<boolean> {
 /**
  * Delete a spin wheel group along with every prize that references it.
  */
-export async function deleteWheelGroupWithPrizes(
-  groupId: string
-): Promise<boolean> {
-  const prizes = await getPrizesByGroupId(groupId)
-  await Promise.all(prizes.map((prize) => deleteWheelPrize(prize.id)))
-  return await deleteWheelGroup(groupId)
-}
+// export async function deleteWheelGroupWithPrizes(
+//   groupId: string
+// ): Promise<boolean> {
+//   const prizes = await getPrizesByGroupId(groupId)
+//   await Promise.all(prizes.map((prize) => deleteWheelPrize(prize.id)))
+//   return await deleteWheelGroup(groupId)
+// }
 
 // ---------------------------------------------------------------------------
 // PRICE: add / update / delete

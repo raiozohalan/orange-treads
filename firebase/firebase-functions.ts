@@ -16,6 +16,7 @@ import {
   getDoc,
   where,
   WhereFilterOp,
+  documentId,
 } from "firebase/firestore"
 import { getClientDB } from "./init"
 
@@ -71,13 +72,12 @@ const getItems = async (
   }
   const querySnapshot = await getDocs(collection(db, table))
   return querySnapshot.docs.map((doc) => ({
-    id: doc.id,
     ...Object.fromEntries(Object.entries(doc.data() || {})),
+    id: doc.id,
   }))
 }
 
 const queryItems = async (
-  table: string,
   firestoreQuery: Query
 ): Promise<Array<Record<string, any>> | null> => {
   if (!db) {
@@ -103,7 +103,53 @@ const getItemsWhere = async (
     return []
   }
   const q = query(collection(db, table), where(field, op, value))
-  return queryItems(table, q)
+  return queryItems(q)
+}
+
+const IN_QUERY_LIMIT = 30 // Firestore "in" max (use 10 on older SDKs)
+
+// Fetch many documents from a collection by their document IDs.
+// Chunks the IDs because Firestore's "in" operator has a value limit.
+// Returned order follows `ids`; IDs that don't exist are skipped.
+// Usage: getItemsByIds("spin_wheel_prizes", ["id1", "id2", "id3"])
+const getItemsByIds = async (
+  table: string,
+  ids: string[],
+  isUnique: boolean = false
+): Promise<Array<Record<string, any>> | null> => {
+  if (!db) {
+    return []
+  }
+
+  const uniqueIds = isUnique ? [...new Set(ids.filter(Boolean))] : ids.filter(Boolean) 
+  if (uniqueIds.length === 0) {
+    return []
+  }
+
+  const chunks: string[][] = []
+  for (let i = 0; i < uniqueIds.length; i += IN_QUERY_LIMIT) {
+    chunks.push(uniqueIds.slice(i, i + IN_QUERY_LIMIT))
+  }
+
+  const snapshots = await Promise.all(
+    chunks.map((chunk) =>
+      getDocs(query(collection(db, table), where(documentId(), "in", chunk)))
+    )
+  )
+
+  const byId = new Map<string, Record<string, any>>()
+  snapshots.forEach((snap) =>
+    snap.docs.forEach((d) =>
+      byId.set(d.id, {
+        ...Object.fromEntries(Object.entries(d.data() || {})),
+        id: d.id,
+      })
+    )
+  )
+
+  return uniqueIds
+    .map((id) => byId.get(id))
+    .filter((item): item is Record<string, any> => Boolean(item))
 }
 
 // Real-time updates
@@ -163,6 +209,7 @@ const firebaseFunctions = {
   updateItem,
   deleteItem,
   queryItems,
+  getItemsByIds,
   getRef,
 }
 

@@ -3,6 +3,7 @@ export interface WheelGroup {
   name: string
   description: string
   isActive: boolean
+  prizeIds: string[] 
 }
 
 export interface WheelPrize {
@@ -11,7 +12,6 @@ export interface WheelPrize {
   color: string
   percentage: number
   image?: string | File
-  groupId: string
   isActive: boolean
 }
 
@@ -19,6 +19,6 @@ export interface WheelPrize {
 // or passed separately for updates)
 export type WheelGroupInput = Omit<WheelGroup, "id">
 export type WheelPrizeInput = Omit<WheelPrize, "id">
-export interface WheelGroupWithPrizes extends WheelGroup {
+export interface WheelGroupWithPrizes extends Omit<WheelGroup, "prizes"> {
   prizes: WheelPrize[]
 }

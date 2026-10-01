@@ -7,7 +7,7 @@ export interface SpinWheelSlice {
   currentGroup: WheelGroupWithPrizes | null
   setCurrentGroup: (group: WheelGroupWithPrizes | null) => void
   setCurrentGroupPrizes: (prizes: WheelPrize[]) => void
-  setGroupPrizes: (id: string, prizes: WheelPrize) => void
+  setGroupData: (newData: Partial<WheelGroupWithPrizes>) => void
 }
 
 export const initialSpinWheelSlice: SpinWheelSlice = {
@@ -17,7 +17,7 @@ export const initialSpinWheelSlice: SpinWheelSlice = {
   currentGroup: null,
   setCurrentGroup: () => {},
   setCurrentGroupPrizes: () => {},
-  setGroupPrizes: () => {},
+  setGroupData: () => {},
 }
 
 export const createSpinWheelSlice = (set: any): SpinWheelSlice => ({
@@ -38,19 +38,14 @@ export const createSpinWheelSlice = (set: any): SpinWheelSlice => ({
         currentGroup: { ...state.currentGroup, prizes },
       }
     }),
-  setGroupPrizes: (id, prizes) =>
+  setGroupData: (newData) =>
     set((state: SpinWheelSlice) => ({
       groupsWithPrizes: state.groupsWithPrizes.map((group) =>
-        group.id === id
-          ? { ...group, prizes: [...group.prizes, prizes] }
-          : group
+        group.id === newData.id ? { ...group, ...newData } : group
       ),
-      ...(state.currentGroup?.id === id
+      ...(state.currentGroup?.id === newData.id
         ? {
-            currentGroup: {
-              ...state.currentGroup,
-              prizes: [...state.currentGroup.prizes, prizes],
-            },
+            currentGroup: newData,
           }
         : {}),
     })),
