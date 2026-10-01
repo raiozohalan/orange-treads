@@ -6,8 +6,6 @@ import ToggleSwitch from "../common/ToogleSwitch"
 import { addWheelPrize, updateWheelPrize } from "@/firebase/spin-wheel"
 import { LoadingSpinner } from "../icons"
 import { WheelPrize } from "@/types/spin-wheel"
-import { useAppStore } from "@/providers/app-store-provider"
-import Select from "../common/Select"
 import firebaseStorageFunctions from "@/firebase/firebase-storage"
 import getDialogActions from "@/utils/dialog"
 import Dialog from "../common/Dialog"
@@ -19,7 +17,6 @@ export const InitialPrize = {
   color: "#ff0000",
   percentage: 30,
   image: "",
-  groupId: "",
   isActive: false,
 }
 
@@ -37,8 +34,6 @@ const SpinWheelPrizeForm = ({
   data,
   onClose,
 }: SpinWheelPrizeFormProps) => {
-  const groups = useAppStore((state) => state.groupsWithPrizes)
-  const setGroupPrizes = useAppStore((state) => state.setGroupPrizes)
   const [prize, setPrize] = useState<WheelPrize>(data ?? InitialPrize)
   const [isSaving, setIsSaving] = useState<boolean>(false)
 
@@ -96,11 +91,6 @@ const SpinWheelPrizeForm = ({
           image: imageUrl,
         })
         if (res) {
-          setGroupPrizes(prize.groupId, {
-            ...prizePayload,
-            id: prizeId,
-            image: imageUrl,
-          })
           setPrize(InitialPrize)
           toast.success("The prize is successfully updated", {
             toasterId: "bottom-right",
@@ -109,11 +99,6 @@ const SpinWheelPrizeForm = ({
       } else {
         const res = await addWheelPrize({ ...prizePayload, image: imageUrl })
         if (res) {
-          setGroupPrizes(prize.groupId, {
-            ...prizePayload,
-            id: res,
-            image: imageUrl,
-          })
           setPrize(InitialPrize)
           toast.success("New prize is added successfully", {
             toasterId: "bottom-right",
@@ -147,37 +132,6 @@ const SpinWheelPrizeForm = ({
           encType="multipart/form-data"
           className="flex flex-col gap-4 w-full max-w-md"
         >
-          {groups.length > 0 && (
-            <div className="flex flex-col gap-1 w-full max-w-md">
-              <label className="text-sm text-gray-100">Select Group</label>
-              <Select
-                id="group-select"
-                required
-                value={prize.groupId}
-                name="groupId"
-                className="border border-gray-300 rounded-md p-2 text-gray-200"
-                onChange={(e) => {
-                  setPrize((prev) => ({
-                    ...prev,
-                    groupId: e.target.value,
-                  }))
-                }}
-              >
-                <option value="" className="text-gray-400">
-                  Select a group
-                </option>
-                {groups.map((group) => (
-                  <option
-                    key={group.id}
-                    value={group.id}
-                    className="text-gray-200"
-                  >
-                    {group.name}
-                  </option>
-                ))}
-              </Select>
-            </div>
-          )}
           <TextField
             label="Name"
             name="name"

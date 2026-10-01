@@ -4,12 +4,7 @@ import React, { useEffect, useState } from "react"
 import { Button, TextField } from "../common"
 import TextArea from "../common/TextArea"
 import ToggleSwitch from "../common/ToogleSwitch"
-import {
-  addWheelGroup,
-  getPrizesByGroupId,
-  updateWheelGroup,
-} from "@/firebase/spin-wheel"
-import Alert, { AlertProps } from "../common/Alert"
+import { addWheelGroup, updateWheelGroup } from "@/firebase/spin-wheel"
 import { LoadingSpinner } from "../icons"
 import { WheelGroup } from "@/types/spin-wheel"
 import { useAppStore } from "@/providers/app-store-provider"
@@ -22,6 +17,7 @@ const InitialGroup: WheelGroup = {
   name: "",
   description: "",
   isActive: false,
+  prizeIds: [],
 }
 
 interface SpinWheelGroupFormProps {
@@ -41,6 +37,7 @@ const SpinWheelGroupForm = ({
   const setNewGroupsWithPrizes = useAppStore(
     (state) => state.setNewGroupsWithPrizes
   )
+  const setGroupData = useAppStore((state) => state.setGroupData)
   const [group, setGroup] = useState<WheelGroup>(data ?? InitialGroup)
   const [isSaving, setIsSaving] = useState<boolean>(false)
 
@@ -72,15 +69,10 @@ const SpinWheelGroupForm = ({
   const handleOnSubmit = async () => {
     try {
       setIsSaving(true)
-      if (group?.id !== null) {
+      if (!!group?.id) {
         const res = await updateWheelGroup(group.id, group)
         if (res) {
-          const prize = await getPrizesByGroupId(group.id)
-          setNewGroupsWithPrizes({
-            ...group,
-            prizes: prize ?? [],
-          })
-
+          setGroupData(group)
           toast.success(`The ${group.name} is successfully updated`, {
             toasterId: "bottom-right",
           })
