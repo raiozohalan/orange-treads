@@ -38,8 +38,14 @@ const SpinWheelGroupForm = ({
     (state) => state.setNewGroupsWithPrizes
   )
   const setGroupData = useAppStore((state) => state.setGroupData)
-  const [group, setGroup] = useState<WheelGroup>(data ?? InitialGroup)
+  const [group, setGroup] = useState<WheelGroup>(InitialGroup)
   const [isSaving, setIsSaving] = useState<boolean>(false)
+
+  useEffect(() => {
+    if (data) {
+      setGroup(data)
+    }
+  }, [data])
 
   useEffect(() => {
     if (open) {

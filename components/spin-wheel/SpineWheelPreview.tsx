@@ -2,7 +2,7 @@
 import { useAppStore } from "@/providers/app-store-provider"
 import SpinWheel from "../common/SpinWheel"
 import { Button, PercentageBar } from "../common"
-import { Menu, Trash } from "react-feather"
+import { Trash } from "react-feather"
 
 const SpineWheelPreview = () => {
   const currentGroup = useAppStore((state) => state.currentGroup)
@@ -14,7 +14,7 @@ const SpineWheelPreview = () => {
       </h5>
       <div className="flex-1 px-5 py-3 max-h-full overflow-y-auto">
         {currentGroup?.description && (
-          <p className="w-full text-sm text-pretty bg-slate-900 text-slate-300 overflow-clip px-3 py-1.5 mb-5 rounded-md">
+          <p className="w-full text-sm text-pretty text-slate-300 mb-2 rounded-md">
             {currentGroup?.description}
           </p>
         )}
