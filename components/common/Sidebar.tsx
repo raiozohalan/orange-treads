@@ -20,6 +20,10 @@ const SIDEBAR_LINKS: {
     name: "Spin Wheel",
     path: "/admin/spin-wheel",
   },
+  {
+    name: "Orders",
+    path: "/admin/orders",
+  },
 ]
 
 const auth = getClientAuth()
