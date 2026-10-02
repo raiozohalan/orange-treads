@@ -1,6 +1,8 @@
 import { WheelGroupWithPrizes, WheelPrize } from "@/types/spin-wheel"
 
 export interface SpinWheelSlice {
+  prizes: WheelPrize[]
+  setPrizes: (prizes: WheelPrize[]) => void
   groupsWithPrizes: WheelGroupWithPrizes[]
   setGroupsWithPrizes: (groups: WheelGroupWithPrizes[]) => void
   setNewGroupsWithPrizes: (group: WheelGroupWithPrizes) => void
@@ -11,6 +13,8 @@ export interface SpinWheelSlice {
 }
 
 export const initialSpinWheelSlice: SpinWheelSlice = {
+  prizes: [],
+  setPrizes: () => {},
   groupsWithPrizes: [],
   setGroupsWithPrizes: () => {},
   setNewGroupsWithPrizes: () => {},
@@ -21,6 +25,8 @@ export const initialSpinWheelSlice: SpinWheelSlice = {
 }
 
 export const createSpinWheelSlice = (set: any): SpinWheelSlice => ({
+  prizes: [],
+  setPrizes: (prizes) => set({ prizes }),
   groupsWithPrizes: [],
   setGroupsWithPrizes: (groups) => set({ groupsWithPrizes: groups }),
   setNewGroupsWithPrizes: (group) =>

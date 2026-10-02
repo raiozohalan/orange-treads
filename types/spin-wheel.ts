@@ -6,12 +6,12 @@ export interface WheelGroup {
   prizeIds: string[] 
 }
 
-export interface WheelPrize {
+export interface WheelPrize<T extends string | File = string | File> {
   id: string
   name: string
   color: string
   percentage: number
-  image?: string | File
+  image?: T
   isActive: boolean
 }
 
