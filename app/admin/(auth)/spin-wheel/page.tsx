@@ -1,6 +1,6 @@
 "use client"
 
-import { Button, PercentageBar, TextField } from "@/components/common"
+import { Button, TextField } from "@/components/common"
 import SpinWheelGroupForm from "@/components/forms/SpinWheelGroupForm"
 import SpinWheelPrizeForm, {
   InitialPrize,
@@ -15,8 +15,6 @@ import {
 } from "@/firebase/spin-wheel"
 import { useEffect, useMemo, useState } from "react"
 import { useAppStore } from "@/providers/app-store-provider"
-import Select from "@/components/common/Select"
-import SpinWheel from "@/components/common/SpinWheel"
 import debounce from "@/utils/debounce"
 import { ChevronRight, Edit, LifeBuoy, Plus, Trash } from "react-feather"
 import { WheelPrize } from "@/types/spin-wheel"
@@ -24,9 +22,10 @@ import ConfirmationModal from "@/components/common/ConfirmationModal"
 import { toast } from "sonner"
 import Menu from "@/components/common/Menu"
 import SpineWheelPreview from "@/components/spin-wheel/SpineWheelPreview"
+import PrizeCard, { CurrentPrize } from "@/components/spin-wheel/PrizeCard"
+import PrizeCardSkeleton from "@/components/spin-wheel/PrizeCardSkeleton"
 
 const auth = getClientAuth()
-type CurrentPrize = WheelPrize & { type: "delete" | "upsert" }
 type GroupAction = "add" | "update" | "delete"
 
 const page = () => {
@@ -41,6 +40,7 @@ const page = () => {
   const [groupAction, setGroupAction] = useState<GroupAction | null>(null)
   const [allPrizes, setAllPrizes] = useState<WheelPrize[]>([])
   const [filteredPrizes, setFilteredPrizes] = useState<WheelPrize[]>([])
+  const [isLoading, setIsLoading] = useState(false)
 
   const getGroupAndPrizes = async () => {
     const group = await getWheelGroupWithPrizes()
@@ -71,8 +71,17 @@ const page = () => {
     if (!auth) {
       return
     }
-
-    Promise.all([getGroupAndPrizes(), getAllPrizes()])
+    const fetchData = async () => {
+      try {
+        setIsLoading(true)
+        await Promise.all([getGroupAndPrizes(), getAllPrizes()])
+      } catch (error) {
+        console.error(error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchData()
   }, [])
 
   useEffect(() => () => handleSearchPrizes.cancel(), [handleSearchPrizes])
@@ -213,7 +222,7 @@ const page = () => {
         <div className="flex-1 min-h-0 flex items-stretch justify-between gap-10 w-full">
           <div className="flex-1 flex flex-col items-start justify-start gap-4">
             <div className="flex items-center justify-between w-full">
-              <TextField 
+              <TextField
                 name="search-prizes"
                 placeholder="Search prizes..."
                 className="w-60! h-8 py-1 text-sm leading-0 border!"
@@ -227,78 +236,31 @@ const page = () => {
                   setCurrentPrize({ ...InitialPrize, type: "upsert" })
                 }
               >
-                <Plus className="w-4 h-4" /> Add Prize
+                <Plus className="w-4 h-4" /> Create Prize
               </Button>
             </div>
             <div className="flex-none grid grid-cols-2 gap-x-4 gap-y-3 w-full">
-              {filteredPrizes.map((prize, index) => (
-                <div
-                  key={`${prize.id}-${index}`}
-                  className="flex items-start justify-between gap-3 bg-gray-900 p-4 rounded-lg"
-                  onClick={() => handleAddPriceToGroup(prize)}
-                >
-                  <div className="w-16 h-auto">
-                    {prize.image && (
-                      <img src={prize.image} className="w-full h-auto" />
-                    )}
-                  </div>
-                  <div className="flex-1 flex flex-col items-start justify-stretch">
-                    <div className="w-full flex items-center justify-between gap-2 mb-2">
-                      <label className="flex-1 font-bold">{prize.name}</label>
-                      <div className="flex-none flex items-center overflow-hidden *:text-gray-400">
-                        <Button
-                          variant="secondary"
-                          size="small"
-                          className="px-1 py-1.5 bg-transparent"
-                          onClick={() => {
-                            setCurrentPrize({
-                              ...prize,
-                              type: "upsert",
-                            })
-                          }}
-                        >
-                          <Edit size={14} />
-                        </Button>
-                        <Button
-                          variant="secondary"
-                          size="small"
-                          className="px-1 py-1.5 bg-transparent"
-                          onClick={() => {
-                            setCurrentPrize({
-                              ...prize,
-                              type: "delete",
-                            })
-                          }}
-                        >
-                          <Trash size={14} />
-                        </Button>
-                      </div>
-                    </div>
-                    <PercentageBar
-                      percentage={prize.percentage}
-                    />
-                    <div className="flex items-center gap-1 mt-2 text-sm">
-                      <b className="mr-1">Color:</b>
-                      <div
-                        className="inline-block h-4 w-4 rounded-md"
-                        style={{
-                          backgroundColor: prize.color,
-                        }}
-                      />
-                      <span>{prize.color}</span>
-                    </div>
-                    <div className="flex items-center gap-1 text-sm">
-                      <b className="mr-1 font-medium">Status:</b>{" "}
-                      <span>{prize.isActive ? "Active" : "Inactive"}</span>
-                    </div>
-                  </div>
+              {isLoading ? (
+                Array(4)
+                  .fill(null)
+                  .map((_, index) => <PrizeCardSkeleton key={index} />)
+              ) : filteredPrizes?.length ? (
+                filteredPrizes.map((prize) => (
+                  <PrizeCard
+                    key={prize.id}
+                    prize={prize}
+                    onSelect={(prize) => handleAddPriceToGroup(prize)}
+                    setCurrentPrize={setCurrentPrize}
+                  />
+                ))
+              ) : (
+                <div className="col-span-2 text-center text-gray-400">
+                  No prizes found
                 </div>
-              ))}
+              )}
             </div>
           </div>
-          {!!currentGroup?.id && (
-            <SpineWheelPreview />
-          )}
+          {!!currentGroup?.id && <SpineWheelPreview />}
         </div>
       </div>
     </>
