@@ -44,9 +44,16 @@ const page = () => {
   const [isLoading, setIsLoading] = useState(false)
 
   const getGroupAndPrizes = async () => {
-    const group = await getWheelGroupWithPrizes()
-    setGroup(group)
-    setCurrentGroup(group[0] || null)
+    try {
+      setIsLoading(true)
+      const group = await getWheelGroupWithPrizes()
+      setGroup(group)
+      setCurrentGroup(group[0] || null)
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const getAllPrizes = async () => {
@@ -59,14 +66,7 @@ const page = () => {
       return
     }
     const fetchData = async () => {
-      try {
-        setIsLoading(true)
-        await Promise.all([getGroupAndPrizes(), getAllPrizes()])
-      } catch (error) {
-        console.error(error)
-      } finally {
-        setIsLoading(false)
-      }
+      await Promise.all([getGroupAndPrizes(), getAllPrizes()])
     }
     fetchData()
   }, [])
@@ -76,7 +76,9 @@ const page = () => {
 
     try {
       await deleteWheelPrize(currentPrize?.id)
+      // TODO: Update this to fetch current group and prizes instead of fetching all groups and prizes again
       await getGroupAndPrizes()
+      await getAllPrizes()
       toast.success("Prize succesfully deleted", { toasterId: "bottom-right" })
     } catch (error) {
       console.error(error)
