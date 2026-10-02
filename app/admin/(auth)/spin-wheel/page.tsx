@@ -35,11 +35,12 @@ const page = () => {
   const setCurrentGroupPrizes = useAppStore(
     (state) => state.setCurrentGroupPrizes
   )
+  const allPrizes = useAppStore((state) => state.prizes)
+  const setAllPrizes = useAppStore((state) => state.setPrizes)
   const setCurrentGroup = useAppStore((state) => state.setCurrentGroup)
   const [currentPrize, setCurrentPrize] = useState<CurrentPrize | null>(null)
   const [groupAction, setGroupAction] = useState<GroupAction | null>(null)
-  const [allPrizes, setAllPrizes] = useState<WheelPrize[]>([])
-  const [filteredPrizes, setFilteredPrizes] = useState<WheelPrize[]>([])
+  const [search, setSearch] = useState("")
   const [isLoading, setIsLoading] = useState(false)
 
   const getGroupAndPrizes = async () => {
@@ -51,21 +52,7 @@ const page = () => {
   const getAllPrizes = async () => {
     const prizes = await getWheelPrizes()
     setAllPrizes(prizes)
-    setFilteredPrizes(prizes)
   }
-
-  const handleSearchPrizes = useMemo(
-    () =>
-      debounce((searchTerm: string, prizes: WheelPrize[]) => {
-        const normalizedSearchTerm = searchTerm.toLowerCase()
-        setFilteredPrizes(
-          prizes.filter((prize) =>
-            prize.name.toLowerCase().includes(normalizedSearchTerm)
-          )
-        )
-      }, 300),
-    []
-  )
 
   useEffect(() => {
     if (!auth) {
@@ -83,8 +70,6 @@ const page = () => {
     }
     fetchData()
   }, [])
-
-  useEffect(() => () => handleSearchPrizes.cancel(), [handleSearchPrizes])
 
   const handleDeletePrize = async () => {
     if (!currentPrize?.id) return
@@ -124,6 +109,15 @@ const page = () => {
     setCurrentGroupPrizes([...currentGroup.prizes, prize])
   }
 
+  const handleSearchPrizes = useMemo(
+    () =>
+      debounce((searchTerm: string, prizes: WheelPrize[]) => {
+        const normalizedSearchTerm = searchTerm.toLowerCase()
+        setSearch(normalizedSearchTerm)
+      }, 300),
+    []
+  )
+
   const groupsMenuActions = useMemo(
     () =>
       groups.map((group) => ({
@@ -132,6 +126,13 @@ const page = () => {
       })),
     [groups, currentGroup]
   )
+
+  const filteredPrizes = useMemo(() => {
+    if (!search) return allPrizes
+    return allPrizes.filter((prize) =>
+      prize.name.toLowerCase().includes(search.toLowerCase())
+    )
+  }, [search, allPrizes])
 
   return (
     <>
