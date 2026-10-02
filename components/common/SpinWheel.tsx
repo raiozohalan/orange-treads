@@ -1,6 +1,6 @@
 "use client"
 
-import { WheelPrice } from "@/types/spin-wheel"
+import { WheelPrize } from "@/types/spin-wheel"
 import classNames from "@/utils/classNames"
 import { useMemo, useRef, useState, useCallback } from "react"
 
@@ -16,7 +16,7 @@ import { useMemo, useRef, useState, useCallback } from "react"
  * the component (e.g. server-side, to decide the outcome before animating).
  */
 
-export type Prize = Omit<WheelPrice, "isActive" | "groupId">
+export type Prize = Omit<WheelPrize, "isActive">
 
 export interface SpinWheelProps {
   prizes: Prize[]
@@ -214,7 +214,7 @@ export default function SpinWheel({
             const mid = (seg.start + seg.end) / 2
             const namePos = polarToCartesian(radius, radius, radius * 0.62, mid)
             return (
-              <g key={seg.prize.id ?? i}>
+              <g key={`${seg.prize.id}-${i}`}>
                 <path
                   d={describeSlice(
                     radius,

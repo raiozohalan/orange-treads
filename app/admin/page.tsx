@@ -15,6 +15,7 @@ import { LoadingSpinner } from "@/components/icons"
 import { getClientAuth } from "@/firebase/init"
 import Alert, { AlertProps } from "@/components/common/Alert"
 import logo from "@/assets/logo.webp"
+import Loading from "@/components/common/Loading"
 
 const defaultSignInData = {
   email: "",
@@ -91,7 +92,6 @@ const Page = () => {
         signInData.password
       )
       if (userCredential) {
-        console.log("userCredential", userCredential)
         if (userCredential.user) {
           onSignInSuccess(userCredential.user)
         }
@@ -100,6 +100,7 @@ const Page = () => {
       onSignInError(new Error("Invalid email or password"))
     } finally {
       setLoading(false)
+      setCheckingAuth(true)
     }
   }
 
@@ -144,11 +145,7 @@ const Page = () => {
 
   // Show loading while checking authentication
   if (checkingAuth) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner className="w-8 h-8 text-white animate-spin" />
-      </div>
-    )
+    return <Loading />
   }
 
   return (
@@ -156,7 +153,7 @@ const Page = () => {
       <div className="relative w-[200px] h-[200px] lg:w-[324px] lg:h-[324px]">
         <Image
           fill
-          className="object-contain"
+          className="object-contain animate-pulse"
           src={logo.src}
           alt="Orange Treads"
         />

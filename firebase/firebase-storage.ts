@@ -17,7 +17,7 @@ console.log("Firebase Storage initialized:", storage)
  * Upload a new file to the given storage path.
  * If a file already exists at that exact path, this overwrites it —
  * use `updateFile` (alias below) when the intent is explicitly an update.
- * @param path - e.g. "spin_wheel_prices/abc123/image.png"
+ * @param path - e.g. "spin_wheel_prizes/abc123/image.png"
  * @param file - File or Blob from an <input type="file"> or similar
  * @returns the public download URL, or null on failure / SSR
  */
@@ -38,7 +38,7 @@ const saveFile = async (path: string, file: File | Blob): Promise<string | null>
 /**
  * Upload with progress reporting — useful for larger files (e.g. an image
  * picker with a progress bar) instead of a plain fire-and-forget upload.
- * @param path - e.g. "spin_wheel_prices/abc123/image.png"
+ * @param path - e.g. "spin_wheel_prizes/abc123/image.png"
  * @param file - File or Blob to upload
  * @param onProgress - called with a 0–100 percentage as the upload proceeds
  * @returns the public download URL, or null on failure / SSR
@@ -82,7 +82,7 @@ const saveFileWithProgress = (
  * This is functionally identical to saveFile — Storage doesn't distinguish
  * create vs overwrite the way Firestore does — kept as a separate named
  * export so call sites can express intent clearly.
- * @param path - e.g. "spin_wheel_prices/abc123/image.png"
+ * @param path - e.g. "spin_wheel_prizes/abc123/image.png"
  * @param file - File or Blob to replace the existing one with
  * @returns the public download URL, or null on failure / SSR
  */
@@ -92,7 +92,7 @@ const updateFile = async (path: string, file: File | Blob): Promise<string | nul
 
 /**
  * Get the public download URL for a file at a given path.
- * @param path - e.g. "spin_wheel_prices/abc123/image.png"
+ * @param path - e.g. "spin_wheel_prizes/abc123/image.png"
  * @returns the download URL, or null if it doesn't exist / SSR / error
  */
 const getFileURL = async (path: string): Promise<string | null> => {
@@ -110,7 +110,7 @@ const getFileURL = async (path: string): Promise<string | null> => {
 
 /**
  * List all files (and download URLs) under a given folder path.
- * @param folderPath - e.g. "spin_wheel_prices/abc123"
+ * @param folderPath - e.g. "spin_wheel_prizes/abc123"
  * @returns array of { name, path, url }, or [] on failure / SSR
  */
 const listFiles = async (
@@ -140,7 +140,7 @@ const listFiles = async (
 
 /**
  * Delete the file at a given storage path.
- * @param path - e.g. "spin_wheel_prices/abc123/image.png"
+ * @param path - e.g. "spin_wheel_prizes/abc123/image.png"
  * @returns true on success, false on failure / SSR
  */
 const deleteFile = async (path: string): Promise<boolean> => {
