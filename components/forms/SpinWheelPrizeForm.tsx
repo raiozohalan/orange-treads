@@ -29,7 +29,7 @@ export const InitialPrize = {
 interface SpinWheelPrizeFormProps {
   open?: boolean
   onClose?: () => void
-  data?: WheelPrize<string> | null
+  data?: WheelPrize | null
 }
 
 const MODAL_ID = "spin-wheel-prize-form"

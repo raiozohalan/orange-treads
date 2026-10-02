@@ -6,7 +6,7 @@ export interface WheelGroup {
   prizeIds: string[] 
 }
 
-export interface WheelPrize<T extends string | File = string | File> {
+export interface WheelPrize<T extends string | File = string> {
   id: string
   name: string
   color: string
