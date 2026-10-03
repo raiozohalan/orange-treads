@@ -4,8 +4,9 @@ import {
   SpinWheelSlice,
 } from "./spin-wheel/spin-wheel-slice"
 import { persist } from "zustand/middleware"
+import { createOrdersSlice, type OrdersSlice } from "./orders/orders-slice"
 
-export type AppState = SpinWheelSlice
+export type AppState = SpinWheelSlice & OrdersSlice
 export type AppStoreInit = Partial<AppState>
 
 // factory, not a module-level singleton — this is what makes it request-safe
@@ -15,6 +16,7 @@ export const createAppStore = (init?: AppStoreInit) =>
       (set) => ({
         ...init,
         ...createSpinWheelSlice(set),
+        ...createOrdersSlice(set),
       }),
       { name: "orange-treads" }
     )
