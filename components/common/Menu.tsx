@@ -13,7 +13,7 @@ export interface MenuItem {
   danger?: boolean
 }
 
-interface MenuProps {
+export interface MenuProps {
   items: MenuItem[]
   /** Text shown on the default trigger button */
   label?: string | ReactNode
@@ -26,6 +26,8 @@ interface MenuProps {
   className?: string
   menuClassName?: string
   containerClassName?: string
+  /** This trigger everytime the items is clicked and don't want to attach onClick events on menu items */
+  onSelect?: (item: MenuItem) => void
 }
 
 const positionClasses: Record<MenuPosition, string> = {
@@ -41,6 +43,7 @@ const Menu = ({
   trigger,
   position = "bottom-left",
   disabled,
+  onSelect,
   fullWidth,
   className,
   menuClassName,
@@ -68,6 +71,7 @@ const Menu = ({
 
   const runItem = (item: MenuItem) => {
     if (item.disabled) return
+    if(onSelect) onSelect(item)
     item.onClick?.()
     closeMenu(true)
   }
@@ -143,8 +147,8 @@ const Menu = ({
         onClick={() => (open ? closeMenu() : openMenu())}
         onKeyDown={handleKeyDown}
         className={classNames(
-          "flex items-center justify-between gap-2 px-3 py-2 rounded-md border-2 border-gray-300 focus:outline-none focus:border-blue-500 transition-all duration-300 ease-in-out",
-          "disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none disabled:select-none",
+          "flex items-center justify-between gap-2 px-3 py-1.5 rounded-md border-2 border-gray-300 focus:outline-none focus:border-blue-500 text-gray-200",
+          "disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none disabled:select-none transition-all duration-300 ease-in-out",
           fullWidth && "w-full",
           className
         )}
