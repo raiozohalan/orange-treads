@@ -219,6 +219,7 @@ export interface Order<T extends string | File = string> {
   supplierPrice: number
   sellingPrice: number
   downpayment: number
+  address: string
   status: OrderStatus
   image?: T
 }

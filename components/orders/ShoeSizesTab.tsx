@@ -146,8 +146,7 @@ export function ShoeSizeTabs({
         className
       )}
     >
-      <b className="text-base text-gray-200">Shoe Size:</b>
-      <div className="flex items-center gap-2.5 mt-1">
+      <div className="flex items-center gap-2.5">
         <TabList
           label="Sizing system"
           baseId={regionId}

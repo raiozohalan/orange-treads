@@ -7,7 +7,7 @@ interface TextFieldProps extends React.TextareaHTMLAttributes<HTMLTextAreaElemen
   containerClassName?: string
 }
 
-const TextField = ({
+const TextArea = ({
   label,
   error,
   className,
@@ -32,4 +32,4 @@ const TextField = ({
   )
 }
 
-export default TextField
+export default TextArea

@@ -1,19 +1,20 @@
 "use client"
 
 import React, { useEffect, useState } from "react"
-import { Button, TextField } from "../common"
-import Select from "../common/Select"
+import { Button, TextField, TextArea } from "../common"
 import { LoadingSpinner } from "../icons"
 import { useAppStore } from "@/providers/app-store-provider"
 import getDialogActions from "@/utils/dialog"
 import { toast } from "sonner"
 import Dialog from "../common/Dialog"
-import { Order, SHOE_SIZES, ShoesSizes, OrderStatus } from "@/types/orders"
-import { OrderAction } from "@/stores/orders/orders-slice"
+import { Order, OrderStatus } from "@/types/orders"
 import { ordersFirebase } from "@/firebase/firebase-orders"
 import classNames from "@/utils/classNames"
 import { Trash, Upload } from "react-feather"
 import firebaseStorageFunctions from "@/firebase/firebase-storage"
+import Menu, { MenuItem } from "../common/Menu"
+import Status from "./Status"
+import { ShoeSizeTabs } from "./ShoeSizesTab"
 
 type OrderFileImage = Order<File>
 
@@ -22,26 +23,23 @@ const createInitialOrder = (): OrderFileImage => ({
   customerName: "",
   shoesName: "",
   shoesImage: "",
-  size: "4",
+  size: {
+    region: "EU",
+    category: "adult",
+    size: "20",
+  },
   supplierName: "",
   supplierPrice: 0,
   sellingPrice: 0,
   downpayment: 0,
-  capital: 0,
-  balance: 0,
-  profit: 0,
-  status: OrderStatus.Pending,
+  address: "",
+  status: OrderStatus.Processing,
 })
-
-const statusOptions = Object.values(OrderStatus)
 
 const amountFields = [
   ["supplierPrice", "Supplier Price"],
   ["sellingPrice", "Selling Price"],
   ["downpayment", "Downpayment"],
-  ["capital", "Capital"],
-  ["balance", "Balance"],
-  ["profit", "Profit"],
 ] as const
 
 interface OrderFormProps {
@@ -63,18 +61,22 @@ const OrderForm = ({ onClose }: OrderFormProps) => {
 
   useEffect(() => {
     if (
-      currentOrder &&
-      [OrderAction.Create, OrderAction.Update].includes(currentOrder.type)
+      true
+      // currentOrder &&
+      // [OrderAction.Create, OrderAction.Update].includes(currentOrder.type)
     ) {
       dialogActions.open()
     }
   }, [currentOrder?.type])
 
+  const onChangeOrder = (newData: Partial<OrderFileImage>) =>
+    setOrder((previous) => ({ ...previous, ...newData }))
+
   const handleFormChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     const target = e.target
-    const field = target.name as keyof Order
+    const field = target.name as keyof OrderFileImage
     let value: Order[keyof Order] | File = target.value
 
     if ("files" in target && target?.files && target?.files?.length > 0) {
@@ -82,13 +84,11 @@ const OrderForm = ({ onClose }: OrderFormProps) => {
       setImagePreview(URL.createObjectURL(value as File))
     } else if (target instanceof HTMLInputElement && target.type === "number") {
       value = Number(target.value)
-    } else if (field === "size") {
-      value = target.value as ShoesSizes
     } else if (field === "status") {
       value = target.value as OrderStatus
     }
 
-    setOrder((previous) => ({ ...previous, [field]: value }) as OrderFileImage)
+    onChangeOrder({ [field]: value })
   }
 
   const handleClose = () => {
@@ -153,173 +153,171 @@ const OrderForm = ({ onClose }: OrderFormProps) => {
 
   return (
     <Dialog id={MODAL_ID} popover="manual">
-      <div className="dialog-content flex flex-col items-center w-full max-w-2xl h-[94vh] max-h-[94vh] py-4 px-6 bg-gray-700 rounded-lg">
-        <h2 className="text-xl font-bold text-white mb-4">
+      <div className="dialog-content flex flex-col items-start w-full max-w-2xl min-0 max-h-[94vh] rounded-lg">
+        <h2 className="flex-none text-xl font-bold text-white px-6 py-4">
           {order.id ? "Edit Order" : "Add Order"}
         </h2>
         <form
           onSubmit={handleOnSubmit}
-          className="flex flex-col gap-4 w-full h-full"
+          className="flex-1 flex flex-col gap-4 w-full max-h-full px-6 pb-6 overflow-y-auto"
         >
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-full overflow-y-auto pr-1">
-            <div className="row-span-2 pt-1">
-              <input
-                id="image-picker"
-                type="file"
-                name="image"
-                accept="image/png, image/jpeg, image/jpg, image/webp"
-                value=""
-                onChange={handleFormChange}
-                className="hidden"
-              />
-              <div
-                className={classNames(
-                  "relative group w-full h-28 flex items-center justify-center bg-gray-600/70 rounded-md overflow-hidden cursor-pointer",
-                  imagePreview ? "p-2" : "p-0"
-                )}
-              >
-                {imagePreview ? (
-                  <>
-                    <img
-                      src={imagePreview}
-                      alt="Prize"
-                      className="w-auto h-20 object-cover rounded-md"
-                    />
-                  </>
-                ) : (
-                  <label
-                    htmlFor="image-picker"
-                    className={classNames(
-                      "w-full h-full flex items-center justify-center gap-2 text-gray-400 text-base cursor-pointer",
-                      "hover:scale-110 hover:text-white hover:bg-gray-800 transition-opacity duration-300 ease-in-out",
-                      isSaving ? "pointer-events-none opacity-50" : ""
-                    )}
-                  >
-                    <Upload size={16} /> Add Image
-                  </label>
-                )}
-              </div>
-              <div className="flex items-center justify-between gap-2 mt-3">
-                <Button
-                  fullWidth
-                  variant="secondary"
-                  size="small"
-                  className="h-7 px-0 py-0"
-                  disabled={isSaving}
-                >
-                  <label
-                    htmlFor="image-picker"
-                    className="w-full h-full flex items-center justify-center gap-1 cursor-pointer capitalize font-normal"
-                  >
-                    <Upload size={16} /> Upload
-                  </label>
-                </Button>
-                <Button
-                  fullWidth
-                  variant="secondary"
-                  size="small"
-                  className="capitalize! font-normal"
-                  disabled={isSaving || !imagePreview}
-                  onClick={() => {
-                    setImagePreview(null)
-                    setOrder((prev) => ({
-                      ...prev,
-                      image: undefined,
-                    }))
-                  }}
-                >
-                  <Trash size={16} /> Remove
-                </Button>
-              </div>
-            </div>
-            <TextField
-              label="Tracking No."
-              name="trackingNo"
-              value={order.trackingNo}
+          <div>
+            <input
+              id="image-picker"
+              type="file"
+              name="image"
+              accept="image/png, image/jpeg, image/jpg, image/webp"
+              value=""
               onChange={handleFormChange}
+              className="hidden"
             />
-            <TextField
-              label="Customer Name"
-              name="customerName"
-              value={order.customerName}
-              onChange={handleFormChange}
-              required
-            />
-            <TextField
-              label="Shoe Name"
-              name="shoesName"
-              value={order.shoesName}
-              onChange={handleFormChange}
-              required
-            />
-            <Select
-              label="Shoe Size"
-              name="size"
-              value={order.size}
-              onChange={handleFormChange}
-              fullWidth
-              className="text-gray-200"
-            >
-              {Object.entries(SHOE_SIZES).flatMap(([system, categories]) =>
-                Object.entries(categories).map(([category, sizes]) => (
-                  <optgroup
-                    key={`${system}-${category}`}
-                    label={`${system} ${category}`}
-                  >
-                    {sizes.map((size) => (
-                      <option
-                        key={`${system}-${category}-${size}`}
-                        value={size}
-                      >
-                        {size}
-                      </option>
-                    ))}
-                  </optgroup>
-                ))
+            <div
+              className={classNames(
+                "relative group w-full h-28 flex items-center justify-center bg-gray-600/70 rounded-md overflow-hidden cursor-pointer",
+                imagePreview ? "p-2" : "p-0"
               )}
-            </Select>
-            <TextField
-              label="Supplier Name"
-              name="supplierName"
-              value={order.supplierName}
-              onChange={handleFormChange}
-            />
-            {amountFields.map(([field, label]) => (
+            >
+              {imagePreview ? (
+                <>
+                  <img
+                    src={imagePreview}
+                    alt="Prize"
+                    className="w-auto h-20 object-cover rounded-md"
+                  />
+                </>
+              ) : (
+                <label
+                  htmlFor="image-picker"
+                  className={classNames(
+                    "w-full h-full flex items-center justify-center gap-2 text-gray-400 text-base cursor-pointer",
+                    "hover:scale-110 hover:text-white hover:bg-gray-800 transition-opacity duration-300 ease-in-out",
+                    isSaving ? "pointer-events-none opacity-50" : ""
+                  )}
+                >
+                  <Upload size={16} /> Add Image
+                </label>
+              )}
+            </div>
+            <div className="flex items-center justify-between gap-2 mt-3">
+              <Button
+                fullWidth
+                variant="secondary"
+                size="small"
+                className="h-7 px-0 py-0"
+                disabled={isSaving}
+              >
+                <label
+                  htmlFor="image-picker"
+                  className="w-full h-full flex items-center justify-center gap-1 cursor-pointer capitalize font-normal"
+                >
+                  <Upload size={16} /> Upload
+                </label>
+              </Button>
+              <Button
+                fullWidth
+                variant="secondary"
+                size="small"
+                className="capitalize! font-normal"
+                disabled={isSaving || !imagePreview}
+                onClick={() => {
+                  setImagePreview(null)
+                  onChangeOrder({
+                    image: undefined,
+                  })
+                }}
+              >
+                <Trash size={16} /> Remove
+              </Button>
+            </div>
+          </div>
+          <hr className="w-full border-t border-gray-700/70 mt-2" />
+          <div>
+            <b className="text-white text-base leading-none">
+              Shipping Details:
+            </b>
+            <div className="grid grid-cols-2 gap-3 mt-2">
               <TextField
-                key={field}
-                label={label}
-                name={field}
-                type="number"
-                min="0"
-                step="0.01"
-                value={order[field]}
+                label="Customer Name"
+                name="customerName"
+                value={order.customerName}
+                onChange={handleFormChange}
+                required
+              />
+              <TextField
+                label="Tracking No."
+                name="trackingNo"
+                value={order.trackingNo}
                 onChange={handleFormChange}
               />
-            ))}
-            <Select
-              label="Status"
-              name="status"
-              value={order.status}
-              onChange={handleFormChange}
-              fullWidth
-            >
-              {statusOptions.map((status) => (
-                <option key={status} value={status}>
-                  {status}
-                </option>
-              ))}
-            </Select>
+              <TextArea
+                label="Delivery Address"
+                name="address"
+                value={order.address}
+                onChange={handleFormChange}
+                className="min-h-5! text-gray-300"
+                required
+              />
+              <Status
+                label="Delivery Status"
+                status={order.status}
+                onSelect={(status: MenuItem) =>
+                  setOrder((prev) => ({
+                    ...prev,
+                    status: status.label as OrderStatus,
+                  }))
+                }
+              />
+            </div>
           </div>
-          <div className="flex gap-3">
+          <hr className="border-t border-gray-700/70 mt-2" />
+          <div>
+            <b className="text-white text-base leading-none">
+              Order Details:
+            </b>
+            <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4 h-auto mt-2">
+              <TextField
+                label="Shoe Name"
+                name="shoesName"
+                value={order.shoesName}
+                onChange={handleFormChange}
+                required
+              />
+
+              {amountFields.map(([field, label]) => (
+                <TextField
+                  key={field}
+                  label={label}
+                  name={field}
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={order[field]}
+                  onChange={handleFormChange}
+                />
+              ))}
+            </div> 
+            <label className="inline-block text-sm text-gray-400 mt-4">Shoe Size:</label>
+            <ShoeSizeTabs
+              size={order.size}
+              onSelect={(size) =>
+                onChangeOrder({
+                  size,
+                })
+              }
+              className="flex-none mt-1.5"
+            />
+          </div>
+          <div className="flex gap-3 mt-4">
             <Button
               type="button"
               variant="secondary"
+              size="large"
               fullWidth
               onClick={handleClose}
             >
               Cancel
             </Button>
-            <Button type="submit" fullWidth disabled={isSaving}>
+            <Button type="submit" size="large" fullWidth disabled={isSaving}>
               {isSaving ? (
                 <>
                   <LoadingSpinner className="w-4 h-4 text-white animate-spin" />{" "}
