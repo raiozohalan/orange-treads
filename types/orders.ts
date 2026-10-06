@@ -1,5 +1,4 @@
 export enum OrderStatus {
-  Pending = "pending",
   Processing = "processing",
   Shipped = "shipped",
   Delivered = "delivered",
@@ -195,13 +194,19 @@ export const SHOE_SIZES = {
   },
 } as const
 
-type SizeValues<T> = T extends readonly (infer Size)[]
+export type ShoeRegion = "US" | "UK" | "EU"
+export type ShoeCategory = "women" | "men" | "kids" | "adult"
+export type SizeValues<T> = T extends readonly (infer Size)[]
   ? Size
   : T extends object
     ? SizeValues<T[keyof T]>
     : never
 
-export type ShoesSizes = SizeValues<typeof SHOE_SIZES>
+export interface ShoesSizes {
+  region: ShoeRegion
+  category: ShoeCategory
+  size: SizeValues<typeof SHOE_SIZES> | null
+}
 
 export interface Order<T extends string | File = string> {
   id?: string
@@ -214,9 +219,6 @@ export interface Order<T extends string | File = string> {
   supplierPrice: number
   sellingPrice: number
   downpayment: number
-  capital: number
-  balance: number
-  profit: number
   status: OrderStatus
   image?: T
 }
