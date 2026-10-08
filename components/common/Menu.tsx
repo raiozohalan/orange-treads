@@ -155,7 +155,7 @@ const Menu = ({
       >
         {trigger ?? (
           <>
-            <span className="truncate">{label}</span>
+            <span className="flex items-center gap-1.5 truncate">{label}</span>
             <svg
               aria-hidden="true"
               viewBox="0 0 20 20"

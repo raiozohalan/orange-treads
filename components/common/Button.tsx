@@ -10,12 +10,14 @@ const buttonSizes = {
   small: "px-2 py-1 text-sm",
   medium: "px-3 py-1.5 text-sm",
   large: "px-4 py-2 text-sm",
+  xl: "px-4 py-3 text-sm",
 }
 
 const roundedSizes = {
   small: "rounded-sm",
   medium: "rounded-md",
   large: "rounded-lg",
+  xl: "rounded-lg",
 }
 
 // Built-in command keywords, plus support for custom "--foo" commands
