@@ -21,6 +21,10 @@ const SIDEBAR_LINKS: {
     path: "/admin/spin-wheel",
   },
   {
+    name: "Products  ",
+    path: "/admin/products",
+  },
+  {
     name: "Orders",
     path: "/admin/orders",
   },

@@ -1,0 +1,282 @@
+/** Shoes */
+export const SHOE_SIZES = {
+  US: {
+    men: [
+      "4",
+      "4.5",
+      "5",
+      "5.5",
+      "6",
+      "6.5",
+      "7",
+      "7.5",
+      "8",
+      "8.5",
+      "9",
+      "9.5",
+      "10",
+      "10.5",
+      "11",
+      "11.5",
+      "12",
+      "12.5",
+      "13",
+      "13.5",
+      "14",
+      "14.5",
+      "15",
+    ],
+    women: [
+      "5",
+      "5.5",
+      "6",
+      "6.5",
+      "7",
+      "7.5",
+      "8",
+      "8.5",
+      "9",
+      "9.5",
+      "10",
+      "10.5",
+      "11",
+      "11.5",
+      "12",
+      "12.5",
+      "13",
+    ],
+    kids: [
+      "10C",
+      "10.5C",
+      "11C",
+      "11.5C",
+      "12C",
+      "12.5C",
+      "13C",
+      "13.5C",
+      "1Y",
+      "1.5Y",
+      "2Y",
+      "2.5Y",
+      "3Y",
+      "3.5Y",
+      "4Y",
+      "4.5Y",
+      "5Y",
+      "5.5Y",
+      "6Y",
+      "6.5Y",
+      "7Y",
+    ],
+  },
+  UK: {
+    men: [
+      "3",
+      "3.5",
+      "4",
+      "4.5",
+      "5",
+      "5.5",
+      "6",
+      "6.5",
+      "7",
+      "7.5",
+      "8",
+      "8.5",
+      "9",
+      "9.5",
+      "10",
+      "10.5",
+      "11",
+      "11.5",
+      "12",
+      "12.5",
+      "13",
+      "13.5",
+      "14",
+    ],
+    women: [
+      "2",
+      "2.5",
+      "3",
+      "3.5",
+      "4",
+      "4.5",
+      "5",
+      "5.5",
+      "6",
+      "6.5",
+      "7",
+      "7.5",
+      "8",
+      "8.5",
+      "9",
+      "9.5",
+      "10",
+      "10.5",
+      "11",
+    ],
+    kids: [
+      "9C",
+      "9.5C",
+      "10C",
+      "10.5C",
+      "11C",
+      "11.5C",
+      "12C",
+      "12.5C",
+      "13C",
+      "13.5C",
+      "1Y",
+      "1.5Y",
+      "2Y",
+      "2.5Y",
+      "3Y",
+      "3.5Y",
+      "4Y",
+      "4.5Y",
+      "5Y",
+      "5.5Y",
+      "6Y",
+    ],
+  },
+  EU: {
+    adult: [
+      "35",
+      "36",
+      "37",
+      "38",
+      "39",
+      "40",
+      "41",
+      "42",
+      "43",
+      "44",
+      "45",
+      "46",
+      "47",
+      "48",
+      "49",
+      "50",
+    ],
+    kids: [
+      "16",
+      "17",
+      "18",
+      "19",
+      "20",
+      "21",
+      "22",
+      "23",
+      "24",
+      "25",
+      "26",
+      "27",
+      "28",
+      "29",
+      "30",
+      "31",
+      "32",
+      "33",
+      "34",
+      "35",
+      "36",
+      "37",
+      "38",
+      "39",
+    ],
+  },
+} as const
+
+export type ShoeRegion = keyof typeof SHOE_SIZES
+export type ShoeCategory = "women" | "men" | "kids" | "adult" | "unisex"
+export type SizeValues<T> = T extends readonly (infer Size)[]
+  ? Size
+  : T extends object
+    ? SizeValues<T[keyof T]>
+    : never
+
+/** Perfume */
+export enum PerfumeConcentration {
+  Parfum = "parfum",
+  EauDeParfum = "eau de parfum",
+  EauDeToilette = "eau de toilette",
+  EauDeCologne = "eau de cologne",
+}
+
+export enum PerfumeScentFamily {
+  Woody = "woody",
+  Floral = "floral",
+  Citrus = "citrus",
+  Oriental = "oriental",
+  Fresh = "fresh",
+  Gourmand = "gourmand",
+}
+
+/** Watches */
+export enum WatchMovement {
+  Automatic = "automatic",
+  Manual = "manual",
+  Quartz = "quartz",
+  Solar = "solar",
+  Smart = "smart",
+}
+
+export enum WatchDisplay {
+  Analog = "analog",
+  Digital = "digital",
+  Hybrid = "hybrid",
+}
+
+export enum Productype {
+  Shoes = "shoes",
+  Perfume = "perfume",
+  Watches = "watches",
+}
+
+export interface BaseProduct {
+  id?: string
+  supplierName: string
+  supplierPrice: number | ""
+  sellingPrice: number | ""
+}
+
+export interface Shoes extends BaseProduct {
+  type: Productype.Shoes
+  name: string
+  region: ShoeRegion
+  category: ShoeCategory
+  size: SizeValues<typeof SHOE_SIZES>
+}
+
+export type AvailableSizes = Partial<
+  Record<
+    ShoeRegion,
+    Partial<Record<ShoeCategory, SizeValues<typeof SHOE_SIZES>[]>>
+  >
+>
+export interface ShoesProduct extends BaseProduct {
+  type: Productype.Shoes
+  name: string
+  availableSizes: AvailableSizes
+}
+
+export interface Perfume extends BaseProduct {
+  type: Productype.Perfume
+  name: string
+  concentration: PerfumeConcentration
+  scentFamily: PerfumeScentFamily
+}
+
+export interface Watch extends BaseProduct {
+  type: Productype.Watches
+  name: string
+  watchMovement: WatchMovement
+  wathDisplay: WatchDisplay
+}
+
+export type Product = (ShoesProduct | Perfume | Watch) & {
+  id?: string
+  dateCreated?: Date
+  dateUpdated?: Date
+}
