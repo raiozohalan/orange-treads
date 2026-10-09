@@ -213,6 +213,11 @@ export enum PerfumeScentFamily {
   Gourmand = "gourmand",
 }
 
+export interface PerfumeVariant {
+  volumeMl: number; // Per ML
+  price: number;
+}
+
 /** Watches */
 export enum WatchMovement {
   Automatic = "automatic",

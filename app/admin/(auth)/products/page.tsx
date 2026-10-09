@@ -1,19 +1,21 @@
 "use client"
 
-import { Button } from "@/components/common"
-import OrderForm from "@/components/orders/OrderForm"
 import { useAppStore } from "@/providers/app-store-provider"
 import { Plus, Table } from "react-feather"
-import { OrderAction } from "@/stores/orders/orders-slice"
-import AddShoes from "@/components/products/ShoesForm"
+import ShoesForm from "@/components/products/ShoesForm"
 import Menu, { MenuItem } from "@/components/common/Menu"
 import getDialogActions from "@/utils/dialog"
+import PerfumeForm from "@/components/products/PerfumeForm"
 
 const AddProductsOptions: MenuItem[] = [
   {
     label: "Shoes",
-    onClick: ()=> getDialogActions("shoes-form").open()
-  }
+    onClick: () => getDialogActions("shoes-form").open(),
+  },
+  {
+    label: "Perfume",
+    onClick: () => getDialogActions("perfume-form").open(),
+  },
 ]
 
 const Page = () => {
@@ -21,16 +23,23 @@ const Page = () => {
 
   return (
     <>
-      <AddShoes />
+      <ShoesForm />
+      <PerfumeForm />
       <div className="h-full min-h-0 flex flex-col items-stretch justify-between px-6 pt-8 overflow-hidden">
         <div className="flex-none flex items-center h-12 font-bold">
           <div className="flex-1 flex items-center gap-2 leading-none text-gray-400 text-2xl">
             <Table size={24} /> Orders
           </div>
           <Menu
-            label={<><Plus className="w-4 h-4" />   Add Product</>}
+            label={
+              <>
+                <Plus className="w-4 h-4" /> Add Product
+              </>
+            }
             items={AddProductsOptions}
             position="bottom-right"
+            className="h-7 px-2! bg-gray-700/60 hover:bg-gray-700 text-sm! text-gray-200 border-0!"
+            menuClassName="mt-1"
           />
         </div>
         <hr className="flex-none mt-1 mb-7 border-gray-800" />

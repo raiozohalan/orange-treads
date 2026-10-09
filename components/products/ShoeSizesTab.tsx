@@ -6,19 +6,9 @@ import {
   ShoeCategory,
   ShoeRegion,
   Shoes,
-  ShoesProduct,
 } from "@/types/products"
 import classNames from "@/utils/classNames"
-import {
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useId,
-  useMemo,
-  useRef,
-  useState,
-  type KeyboardEvent,
-} from "react"
+import { useId, useMemo, useRef, useState, type KeyboardEvent } from "react"
 import { ArrowRight } from "react-feather"
 
 /* -------------------------------------------------------------------------- */
@@ -32,9 +22,17 @@ type TabListProps = {
   onSelect: (id: string) => void
   baseId: string
   variant?: "primary" | "secondary"
+  className?: string
 }
 
-function TabList({ label, tabs, selected, onSelect, baseId }: TabListProps) {
+export function TabList({
+  label,
+  tabs,
+  selected,
+  onSelect,
+  baseId,
+  className,
+}: TabListProps) {
   const refs = useRef<Record<string, HTMLButtonElement | null>>({})
 
   function handleKeyDown(e: KeyboardEvent<HTMLButtonElement>, index: number) {
@@ -64,7 +62,7 @@ function TabList({ label, tabs, selected, onSelect, baseId }: TabListProps) {
   }
 
   const base =
-    "relative px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 cursor-pointer"
+    "relative px-4 py-2 text-sm capitalize font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 cursor-pointer"
 
   const styles = {
     list: "inline-flex gap-1 rounded-[10px] p-1 dark:bg-[rgba(33,33,34,0.8)]",
@@ -75,7 +73,11 @@ function TabList({ label, tabs, selected, onSelect, baseId }: TabListProps) {
   }
 
   return (
-    <div role="tablist" aria-label={label} className={styles.list}>
+    <div
+      role="tablist"
+      aria-label={label}
+      className={classNames(styles.list, className)}
+    >
       {tabs.map((tab, i) => {
         const isSelected = tab.id === selected
         return (
@@ -229,7 +231,11 @@ const CATEGORY_LABELS: Record<string, string> = {
 
 interface ShoeSizeSelectorProps {
   availableSizes: AvailableSizes
-  setAvailableSizes: (data: { region: ShoeRegion, category: ShoeCategory, size: Shoes["size"]}) => void
+  setAvailableSizes: (data: {
+    region: ShoeRegion
+    category: ShoeCategory
+    size: Shoes["size"]
+  }) => void
   className?: string
 }
 
@@ -313,7 +319,7 @@ export function ShoeSizeSelector({
                     ? "bg-blue-500 border-blue-500 text-white"
                     : "text-zinc-800 dark:text-zinc-200 border-zinc-200 dark:border-zinc-800"
                 )}
-                onClick={() => setAvailableSizes({ region, category, size})}
+                onClick={() => setAvailableSizes({ region, category, size })}
               >
                 {size}
               </li>
