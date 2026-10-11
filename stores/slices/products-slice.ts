@@ -12,6 +12,7 @@ type ProductForm = Product & {
 export interface ProductsSlice {
   products: Product[]
   setProducts: (products: Product[]) => void
+  addProduct: (products: Product) => void
   currentProduct: ProductForm | null
   setCurrentProduct: (order: ProductForm | null) => void
   updateProduct: (updatedOrder: Partial<Product>) => void
@@ -21,6 +22,7 @@ export interface ProductsSlice {
 export const initialOrdersSlice: ProductsSlice = {
   products: [],
   setProducts: () => {},
+  addProduct: () => {},
   currentProduct: null,
   setCurrentProduct: () => {},
   updateProduct: () => {},
@@ -30,6 +32,8 @@ export const initialOrdersSlice: ProductsSlice = {
 export const createProductsSlice = (set: any): ProductsSlice => ({
   products: [],
   setProducts: (products) => set({ products }),
+  addProduct: (product) =>
+    set((state: ProductsSlice) => ({ products: [...state.products, product] })),
   currentProduct: null,
   setCurrentProduct: (order) => set({ currentProduct: order }),
   updateProduct: (updatedOrder) =>

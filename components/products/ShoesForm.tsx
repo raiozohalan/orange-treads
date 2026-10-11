@@ -9,6 +9,7 @@ import { AvailableSizes, ProductType, ShoesProduct } from "@/types/products"
 import productsFirebase from "@/firebase/firebase-products"
 import { toast } from "sonner"
 import { LoadingSpinner } from "../icons"
+import { useAppStore } from "@/providers/app-store-provider"
 
 const createInitialOrder = (): ShoesProduct => ({
   type: ProductType.Shoes,
@@ -33,6 +34,7 @@ const MODAL_ID = "shoes-form"
 const dialogActions = getDialogActions(MODAL_ID)
 
 const ShoesForm = ({ data, onClose }: ShoesFormProps) => {
+  const addProduct = useAppStore((state) => state.addProduct)
   const [shoes, setShoes] = useState<ShoesProduct>(data ?? createInitialOrder)
   const [availableSizes, setAvailableSizes] = useState<AvailableSizes>(
     data?.availableSizes ?? {}
@@ -101,7 +103,7 @@ const ShoesForm = ({ data, onClose }: ShoesFormProps) => {
       setIsSaving(true)
       const { id: shoeId, ...payload } = shoes
       if (shoeId) {
-        const res = productsFirebase.updateProduct(shoeId, {
+        const res = await productsFirebase.updateProduct(shoeId, {
           ...payload,
           availableSizes,
         })
@@ -109,12 +111,13 @@ const ShoesForm = ({ data, onClose }: ShoesFormProps) => {
           throw new Error("Failed to update the product")
         }
 
+        addProduct(shoes)
         // TODO: update the production list
         toast.success("Product updated successfully", {
           toasterId: "bottom-right",
         })
       } else {
-        const res = productsFirebase.addNewProduct({
+        const res = await productsFirebase.addNewProduct({
           ...payload,
           availableSizes,
         })
@@ -123,6 +126,7 @@ const ShoesForm = ({ data, onClose }: ShoesFormProps) => {
           throw new Error("Failed to add new product")
         }
 
+        addProduct({ id: res, ...payload })
         // TODO: Add this product to product list state
         toast.success("Product created successfully", {
           toasterId: "bottom-right",
@@ -148,67 +152,69 @@ const ShoesForm = ({ data, onClose }: ShoesFormProps) => {
           onSubmit={handleOnSubmit}
           className="flex-1 flex flex-col gap-4 w-full max-h-full px-6 pb-6 overflow-y-auto"
         >
-          <div className="grid grid-cols-2 gap-5 mt-2">
-            <TextField
-              label="Name"
-              name="name"
-              value={shoes.name}
-              onChange={handleFormChange}
-              required
-            />
-            <TextField
-              label="Supplier Name"
-              name="supplierName"
-              value={shoes.supplierName}
-              onChange={handleFormChange}
-              required
-            />
-            {amountFields.map(([field, label]) => (
+          <fieldset disabled={isSaving} className="contents">
+            <div className="grid grid-cols-2 gap-5 mt-2">
               <TextField
-                key={field}
-                label={label}
-                name={field}
-                type="number"
-                min="0"
-                step="0.01"
-                value={shoes[field]}
+                label="Name"
+                name="name"
+                value={shoes.name}
                 onChange={handleFormChange}
+                required
               />
-            ))}
-          </div>
-          <div>
-            <label className="inline-block text-sm text-gray-400">
-              Available Sizes:
-            </label>
-            <ShoeSizeSelector
-              availableSizes={availableSizes}
-              setAvailableSizes={handleSetAvailableSize}
-              className="flex-none mt-1.5"
-            />
-          </div>
-          <div className="flex gap-3 mt-4">
-            <Button
-              type="button"
-              variant="secondary"
-              size="xl"
-              fullWidth
-              onClick={handleClose}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" size="xl" fullWidth>
-              {isSaving ? (
-                <>
-                  <LoadingSpinner className="w-4 h-4 text-white animate-spin" />{" "}
-                  Saving...
-                </>
-              ) : shoes.id ? (
-                "Save Changes"
-              ) : (
-                "Create Product"
-              )}
-            </Button>
-          </div>
+              <TextField
+                label="Supplier Name"
+                name="supplierName"
+                value={shoes.supplierName}
+                onChange={handleFormChange}
+                required
+              />
+              {amountFields.map(([field, label]) => (
+                <TextField
+                  key={field}
+                  label={label}
+                  name={field}
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={shoes[field]}
+                  onChange={handleFormChange}
+                />
+              ))}
+            </div>
+            <div>
+              <label className="inline-block text-sm text-gray-400">
+                Available Sizes:
+              </label>
+              <ShoeSizeSelector
+                availableSizes={availableSizes}
+                setAvailableSizes={handleSetAvailableSize}
+                className="flex-none mt-1.5"
+              />
+            </div>
+            <div className="flex gap-3 mt-4">
+              <Button
+                type="button"
+                variant="secondary"
+                size="xl"
+                fullWidth
+                onClick={handleClose}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" size="xl" fullWidth>
+                {isSaving ? (
+                  <>
+                    <LoadingSpinner className="w-4 h-4 text-white animate-spin" />{" "}
+                    Saving...
+                  </>
+                ) : shoes.id ? (
+                  "Save Changes"
+                ) : (
+                  "Create Product"
+                )}
+              </Button>
+            </div>
+          </fieldset>
         </form>
       </div>
     </Dialog>
