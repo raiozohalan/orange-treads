@@ -41,7 +41,7 @@ const scentFamily = Object.values(PerfumeScentFamily).map((d) => ({
 }))
 
 export interface ShoesFormProps {
-  data?: PerfumeProduct
+  data?: PerfumeProduct | null
   onClose?: () => void
 }
 
@@ -51,6 +51,7 @@ const dialogActions = getDialogActions(MODAL_ID)
 const PerfumeForm = ({ data, onClose }: ShoesFormProps) => {
   const uid = useId()
   const addProduct = useAppStore((state) => state.addProduct)
+  const setCurrentProduct = useAppStore((state) => state.setCurrentProduct)
   const concentrationId = `${uid}-concentration`
   const scentFamilyId = `${uid}-scent-family`
   const [product, setProduct] = useState<PerfumeProduct>(
@@ -62,6 +63,7 @@ const PerfumeForm = ({ data, onClose }: ShoesFormProps) => {
   useEffect(() => {
     if (data?.id) {
       dialogActions.open()
+      setProduct(data)
     }
   }, [data?.id])
 
@@ -86,6 +88,7 @@ const PerfumeForm = ({ data, onClose }: ShoesFormProps) => {
   const handleClose = () => {
     setProduct(createInitialOrder())
     onClose?.()
+    setCurrentProduct(null)
     dialogActions.close()
   }
 

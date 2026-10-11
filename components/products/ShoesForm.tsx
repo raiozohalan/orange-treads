@@ -26,7 +26,7 @@ const amountFields = [
 ] as const
 
 export interface ShoesFormProps {
-  data?: ShoesProduct
+  data?: ShoesProduct | null
   onClose?: () => void
 }
 
@@ -35,6 +35,7 @@ const dialogActions = getDialogActions(MODAL_ID)
 
 const ShoesForm = ({ data, onClose }: ShoesFormProps) => {
   const addProduct = useAppStore((state) => state.addProduct)
+  const setCurrentProduct = useAppStore((state) => state.setCurrentProduct)
   const [shoes, setShoes] = useState<ShoesProduct>(data ?? createInitialOrder)
   const [availableSizes, setAvailableSizes] = useState<AvailableSizes>(
     data?.availableSizes ?? {}
@@ -45,6 +46,8 @@ const ShoesForm = ({ data, onClose }: ShoesFormProps) => {
   useEffect(() => {
     if (data?.id) {
       dialogActions.open()
+      setShoes(data)
+      setAvailableSizes(data.availableSizes)
     }
   }, [data?.id])
 
@@ -69,6 +72,7 @@ const ShoesForm = ({ data, onClose }: ShoesFormProps) => {
   const handleClose = () => {
     setShoes(createInitialOrder())
     setAvailableSizes({})
+    setCurrentProduct(null)
     onClose?.()
     dialogActions.close()
   }

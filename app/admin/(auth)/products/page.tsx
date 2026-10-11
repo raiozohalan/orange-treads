@@ -1,14 +1,17 @@
 "use client"
 
 import { useAppStore } from "@/providers/app-store-provider"
-import { Plus, Table } from "react-feather"
+import { Plus, ShoppingBag, Table } from "react-feather"
 import ShoesForm from "@/components/products/ShoesForm"
 import Menu, { MenuItem } from "@/components/common/Menu"
 import getDialogActions from "@/utils/dialog"
 import PerfumeForm from "@/components/products/PerfumeForm"
 import WatchForm from "@/components/products/WatchForm"
-import { useEffect } from "react"
+import { useCallback, useEffect } from "react"
 import productsFirebase from "@/firebase/firebase-products"
+import ProductList from "@/components/products/ProductList"
+import { PerfumeProduct, ProductType, ShoesProduct, WatchProduct } from "@/types/products"
+import { ProductAction } from "@/stores/slices/products-slice"
 
 const AddProductsOptions: MenuItem[] = [
   {
@@ -27,6 +30,7 @@ const AddProductsOptions: MenuItem[] = [
 
 const Page = () => {
   const setProducts = useAppStore((state) => state.setProducts)
+  const currentProduct = useAppStore((state) => state.currentProduct)
 
   useEffect(()=>{
     const fetchProducts = async ()=> {
@@ -39,15 +43,29 @@ const Page = () => {
     fetchProducts()
   },[])
 
+  const getData = useCallback(
+    (type: ProductType) => {
+      if (
+        currentProduct?.id &&
+        currentProduct?.actionType === ProductAction.Update &&
+        currentProduct?.type === type
+      )
+        return currentProduct
+
+      return null
+    },
+    [currentProduct]
+  )
+
   return (
     <>
-      <ShoesForm />
-      <PerfumeForm />
-      <WatchForm />
+      <ShoesForm data={getData(ProductType.Shoes) as ShoesProduct}/>
+      <PerfumeForm data={getData(ProductType.Perfume) as PerfumeProduct}/>
+      <WatchForm data={getData(ProductType.Watch) as WatchProduct}/>
       <div className="h-full min-h-0 flex flex-col items-stretch justify-between px-6 pt-8 overflow-hidden">
         <div className="flex-none flex items-center h-12 font-bold">
           <div className="flex-1 flex items-center gap-2 leading-none text-gray-400 text-2xl">
-            <Table size={24} /> Orders
+            <ShoppingBag size={24} /> Products
           </div>
           <Menu
             label={
@@ -63,13 +81,7 @@ const Page = () => {
         </div>
         <hr className="flex-none mt-1 mb-7 border-gray-800" />
         <div className="flex-1 min-h-0 flex items-stretch justify-between gap-10 w-full">
-          <div className="flex-1 flex flex-col items-start justify-start gap-4">
-            <div className="flex items-center justify-between w-full">
-              <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">
-                No orders found.
-              </div>
-            </div>
-          </div>
+          <ProductList />
         </div>
       </div>
     </>

@@ -41,7 +41,7 @@ const watchDisplay = Object.values(WatchDisplay).map((d) => ({
 }))
 
 export interface ShoesFormProps {
-  data?: WatchProduct
+  data?: WatchProduct | null
   onClose?: () => void
 }
 
@@ -51,6 +51,7 @@ const dialogActions = getDialogActions(MODAL_ID)
 const WatchForm = ({ data, onClose }: ShoesFormProps) => {
   const uid = useId()
   const addProduct = useAppStore((state) => state.addProduct)
+  const setCurrentProduct = useAppStore((state) => state.setCurrentProduct)
   const watchMovementId = `${uid}-watch-movement`
   const watchDisplayId = `${uid}-watch-display`
   const [watch, setWatch] = useState<WatchProduct>(data ?? createInitialOrder)
@@ -60,6 +61,7 @@ const WatchForm = ({ data, onClose }: ShoesFormProps) => {
   useEffect(() => {
     if (data?.id) {
       dialogActions.open()
+      setWatch(data)
     }
   }, [data?.id])
 
@@ -84,6 +86,7 @@ const WatchForm = ({ data, onClose }: ShoesFormProps) => {
   const handleClose = () => {
     setWatch(createInitialOrder())
     onClose?.()
+    setCurrentProduct(null)
     dialogActions.close()
   }
 
