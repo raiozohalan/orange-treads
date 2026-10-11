@@ -196,7 +196,7 @@ export type SizeValues<T> = T extends readonly (infer Size)[]
     ? SizeValues<T[keyof T]>
     : never
 
-/** Perfume */
+/** Perfume Product */
 export enum PerfumeConcentration {
   Parfum = "parfum",
   EauDeParfum = "eau de parfum",
@@ -233,7 +233,7 @@ export enum WatchDisplay {
   Hybrid = "hybrid",
 }
 
-export enum Productype {
+export enum ProductType {
   Shoes = "shoes",
   Perfume = "perfume",
   Watch = "watch",
@@ -247,7 +247,7 @@ export interface BaseProduct {
 }
 
 export interface Shoes extends BaseProduct {
-  type: Productype.Shoes
+  type: ProductType.Shoes
   name: string
   region: ShoeRegion
   category: ShoeCategory
@@ -261,26 +261,26 @@ export type AvailableSizes = Partial<
   >
 >
 export interface ShoesProduct extends BaseProduct {
-  type: Productype.Shoes
+  type: ProductType.Shoes
   name: string
   availableSizes: AvailableSizes
 }
 
-export interface Perfume extends BaseProduct {
-  type: Productype.Perfume
+export interface PerfumeProduct extends BaseProduct {
+  type: ProductType.Perfume
   name: string
   concentration: PerfumeConcentration
   scentFamily: PerfumeScentFamily
 }
 
-export interface Watch extends BaseProduct {
-  type: Productype.Watch
+export interface WatchProduct extends BaseProduct {
+  type: ProductType.Watch
   name: string
   watchMovement: WatchMovement
   wathDisplay: WatchDisplay
 }
 
-export type Product = (ShoesProduct | Perfume | Watch) & {
+export type Product = (ShoesProduct | PerfumeProduct | WatchProduct) & {
   id?: string
   dateCreated?: Date
   dateUpdated?: Date

@@ -5,13 +5,13 @@ import { Button, TextField } from "../common"
 import getDialogActions from "@/utils/dialog"
 import Dialog from "../common/Dialog"
 import { ShoeSizeSelector } from "../products/ShoeSizesTab"
-import { AvailableSizes, Productype, ShoesProduct } from "@/types/products"
+import { AvailableSizes, ProductType, ShoesProduct } from "@/types/products"
 import productsFirebase from "@/firebase/firebase-products"
 import { toast } from "sonner"
 import { LoadingSpinner } from "../icons"
 
 const createInitialOrder = (): ShoesProduct => ({
-  type: Productype.Shoes,
+  type: ProductType.Shoes,
   name: "",
   supplierName: "",
   supplierPrice: "",

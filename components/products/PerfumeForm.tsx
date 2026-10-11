@@ -1,23 +1,22 @@
 "use client"
 
-import React, { useCallback, useEffect, useId, useState } from "react"
+import React, { useEffect, useId, useState } from "react"
 import { Button, TextField } from "../common"
 import getDialogActions from "@/utils/dialog"
 import Dialog from "../common/Dialog"
-import { ShoeSizeSelector, TabList } from "./ShoeSizesTab"
+import { TabList } from "./ShoeSizesTab"
 import {
-  AvailableSizes,
-  Perfume,
+  PerfumeProduct,
   PerfumeConcentration,
   PerfumeScentFamily,
-  Productype,
+  ProductType,
 } from "@/types/products"
 import productsFirebase from "@/firebase/firebase-products"
 import { toast } from "sonner"
 import { LoadingSpinner } from "../icons"
 
-const createInitialOrder = (): Perfume => ({
-  type: Productype.Perfume,
+const createInitialOrder = (): PerfumeProduct => ({
+  type: ProductType.Perfume,
   name: "",
   supplierName: "",
   supplierPrice: "",
@@ -41,7 +40,7 @@ const scentFamily = Object.values(PerfumeScentFamily).map((d) => ({
 }))
 
 export interface ShoesFormProps {
-  data?: Perfume
+  data?: PerfumeProduct
   onClose?: () => void
 }
 
@@ -52,7 +51,7 @@ const PerfumeForm = ({ data, onClose }: ShoesFormProps) => {
   const uid = useId()
   const concentrationId = `${uid}-concentration`
   const scentFamilyId = `${uid}-scent-family`
-  const [shoes, setShoes] = useState<Perfume>(data ?? createInitialOrder)
+  const [shoes, setShoes] = useState<PerfumeProduct>(data ?? createInitialOrder)
   const [isSaving, setIsSaving] = useState<boolean>(false)
 
   // This useEffect is for updating the shoes production only and will not handle the add shoe product
@@ -62,7 +61,7 @@ const PerfumeForm = ({ data, onClose }: ShoesFormProps) => {
     }
   }, [data?.id])
 
-  const onChangeShoe = (newData: Partial<Perfume>) =>
+  const onChangeShoe = (newData: Partial<PerfumeProduct>) =>
     setShoes((previous) => ({ ...previous, ...newData }))
 
   const handleFormChange = (
@@ -71,8 +70,8 @@ const PerfumeForm = ({ data, onClose }: ShoesFormProps) => {
     >
   ) => {
     const target = e.target
-    const field = target.name as keyof Perfume
-    let value: Perfume[keyof Perfume] = target.value
+    const field = target.name as keyof PerfumeProduct
+    let value: PerfumeProduct[keyof PerfumeProduct] = target.value
     if (target instanceof HTMLInputElement && target.type === "number") {
       value = Number(target.value)
     }
@@ -127,7 +126,7 @@ const PerfumeForm = ({ data, onClose }: ShoesFormProps) => {
     <Dialog id={MODAL_ID} popover="manual">
       <div className="dialog-content flex flex-col items-start w-full max-w-2xl min-0 max-h-[94vh] rounded-lg">
         <h2 className="flex-none text-xl font-bold text-white px-6 py-4">
-          {shoes.id ? "Edit Shoes" : "Add Shoes"}
+          {shoes.id ? "Edit Perfume" : "Add Perfume"}
         </h2>
         <form
           onSubmit={handleOnSubmit}
