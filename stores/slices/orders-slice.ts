@@ -37,6 +37,10 @@ export const createOrdersSlice = (set: any): OrdersSlice => ({
       orders: state.orders.map((order) =>
         order.id === updatedOrder.id ? { ...order, ...updatedOrder } : order
       ),
+      currentOrder:
+        updatedOrder.id === state.currentOrder?.id
+          ? { ...state.currentOrder, ...updatedOrder }
+          : state.currentOrder,
     })),
   deleteOrder: (orderId) =>
     set((state: OrdersSlice) => ({

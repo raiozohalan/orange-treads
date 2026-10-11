@@ -4,7 +4,7 @@ import { Button } from "@/components/common"
 import OrderForm from "@/components/orders/OrderForm"
 import { useAppStore } from "@/providers/app-store-provider"
 import { Plus, Table } from "react-feather"
-import { OrderAction } from "@/stores/orders/orders-slice"
+import { OrderAction } from "@/stores/slices/orders-slice"
 
 const Page = () => {
   const setCurrentOrder = useAppStore((state) => state.setCurrentOrder)

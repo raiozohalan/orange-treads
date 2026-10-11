@@ -2,9 +2,9 @@ import { createStore } from "zustand/vanilla"
 import {
   createSpinWheelSlice,
   SpinWheelSlice,
-} from "./spin-wheel/spin-wheel-slice"
+} from "./slices/spin-wheel-slice"
 import { persist } from "zustand/middleware"
-import { createOrdersSlice, type OrdersSlice } from "./orders/orders-slice"
+import { createOrdersSlice, type OrdersSlice } from "./slices/orders-slice"
 
 export type AppState = SpinWheelSlice & OrdersSlice
 export type AppStoreInit = Partial<AppState>

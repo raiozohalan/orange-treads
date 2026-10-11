@@ -236,7 +236,7 @@ export enum WatchDisplay {
 export enum Productype {
   Shoes = "shoes",
   Perfume = "perfume",
-  Watches = "watches",
+  Watch = "watch",
 }
 
 export interface BaseProduct {
@@ -274,7 +274,7 @@ export interface Perfume extends BaseProduct {
 }
 
 export interface Watch extends BaseProduct {
-  type: Productype.Watches
+  type: Productype.Watch
   name: string
   watchMovement: WatchMovement
   wathDisplay: WatchDisplay
