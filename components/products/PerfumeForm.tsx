@@ -51,6 +51,7 @@ const dialogActions = getDialogActions(MODAL_ID)
 const PerfumeForm = ({ data, onClose }: ShoesFormProps) => {
   const uid = useId()
   const addProduct = useAppStore((state) => state.addProduct)
+  const updateProduct = useAppStore((state) => state.updateProduct)
   const setCurrentProduct = useAppStore((state) => state.setCurrentProduct)
   const concentrationId = `${uid}-concentration`
   const scentFamilyId = `${uid}-scent-family`
@@ -96,14 +97,14 @@ const PerfumeForm = ({ data, onClose }: ShoesFormProps) => {
     e.preventDefault()
     try {
       setIsSaving(true)
-      const { id: shoeId, ...payload } = product
-      if (shoeId) {
-        const res = await productsFirebase.updateProduct(shoeId, payload)
+      const { id: productId, ...payload } = product
+      if (productId) {
+        const res = await productsFirebase.updateProduct(productId, payload)
         if (!res) {
           throw new Error("Failed to update the product")
         }
 
-        addProduct(product)
+        updateProduct({ id: productId, ...payload})
         // TODO: update the production list
         toast.success("Product updated successfully", {
           toasterId: "bottom-right",

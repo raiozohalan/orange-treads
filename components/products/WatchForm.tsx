@@ -51,6 +51,7 @@ const dialogActions = getDialogActions(MODAL_ID)
 const WatchForm = ({ data, onClose }: ShoesFormProps) => {
   const uid = useId()
   const addProduct = useAppStore((state) => state.addProduct)
+  const updateProduct = useAppStore((state) => state.updateProduct)
   const setCurrentProduct = useAppStore((state) => state.setCurrentProduct)
   const watchMovementId = `${uid}-watch-movement`
   const watchDisplayId = `${uid}-watch-display`
@@ -94,14 +95,14 @@ const WatchForm = ({ data, onClose }: ShoesFormProps) => {
     e.preventDefault()
     try {
       setIsSaving(true)
-      const { id: shoeId, ...payload } = watch
-      if (shoeId) {
-        const res = await productsFirebase.updateProduct(shoeId, payload)
+      const { id: productId, ...payload } = watch
+      if (productId) {
+        const res = await productsFirebase.updateProduct(productId, payload)
         if (!res) {
           throw new Error("Failed to update the product")
         }
 
-        addProduct(watch)
+        updateProduct({ id: productId, ...watch })
         // TODO: update the production list
         toast.success("Product updated successfully", {
           toasterId: "bottom-right",

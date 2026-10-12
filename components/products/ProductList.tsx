@@ -34,14 +34,16 @@ const ProductList = () => {
       <thead>
         <tr>
           {COMMON_FIELDS.map(({ label }) => (
-            <th className="border border-gray-600 p-2 text-left">{label}</th>
+            <th key={label} className="border border-gray-600 p-2 text-left">
+              {label}
+            </th>
           ))}
           <th className="border border-gray-600 p-2 text-left w-11">Actions</th>
         </tr>
       </thead>
       <tbody>
         {products.map((product) => (
-          <ProductRow product={product} />
+          <ProductRow key={product.id} product={product} />
         ))}
       </tbody>
     </table>

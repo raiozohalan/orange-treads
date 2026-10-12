@@ -35,6 +35,7 @@ const dialogActions = getDialogActions(MODAL_ID)
 
 const ShoesForm = ({ data, onClose }: ShoesFormProps) => {
   const addProduct = useAppStore((state) => state.addProduct)
+  const updateProduct = useAppStore((state) => state.updateProduct)
   const setCurrentProduct = useAppStore((state) => state.setCurrentProduct)
   const [shoes, setShoes] = useState<ShoesProduct>(data ?? createInitialOrder)
   const [availableSizes, setAvailableSizes] = useState<AvailableSizes>(
@@ -105,32 +106,27 @@ const ShoesForm = ({ data, onClose }: ShoesFormProps) => {
     e.preventDefault()
     try {
       setIsSaving(true)
-      const { id: shoeId, ...payload } = shoes
-      if (shoeId) {
-        const res = await productsFirebase.updateProduct(shoeId, {
-          ...payload,
-          availableSizes,
-        })
+      const { id: productId, ...rest } = shoes
+      const shoesPayload = { ...rest, availableSizes }
+      if (productId) {
+        const res = await productsFirebase.updateProduct(productId, shoesPayload)
         if (!res) {
           throw new Error("Failed to update the product")
         }
 
-        addProduct(shoes)
+        updateProduct({ id: productId, ...shoesPayload })
         // TODO: update the production list
         toast.success("Product updated successfully", {
           toasterId: "bottom-right",
         })
       } else {
-        const res = await productsFirebase.addNewProduct({
-          ...payload,
-          availableSizes,
-        })
+        const res = await productsFirebase.addNewProduct(shoesPayload)
 
         if (!res) {
           throw new Error("Failed to add new product")
         }
 
-        addProduct({ id: res, ...payload })
+        addProduct({ id: res, ...shoesPayload })
         // TODO: Add this product to product list state
         toast.success("Product created successfully", {
           toasterId: "bottom-right",

@@ -49,9 +49,11 @@ const Page = () => {
         currentProduct?.id &&
         currentProduct?.actionType === ProductAction.Update &&
         currentProduct?.type === type
-      )
-        return currentProduct
-
+      ) {
+        // Note: removed the actionType to the data so that it will not included on saving a product
+        const { actionType, ...restProductData } = currentProduct
+        return restProductData
+      }
       return null
     },
     [currentProduct]
