@@ -10,7 +10,12 @@ import WatchForm from "@/components/products/WatchForm"
 import { useCallback, useEffect } from "react"
 import productsFirebase from "@/firebase/firebase-products"
 import ProductList from "@/components/products/ProductList"
-import { PerfumeProduct, ProductType, ShoesProduct, WatchProduct } from "@/types/products"
+import {
+  PerfumeProduct,
+  ProductType,
+  ShoesProduct,
+  WatchProduct,
+} from "@/types/products"
 import { ProductAction } from "@/stores/slices/products-slice"
 
 const AddProductsOptions: MenuItem[] = [
@@ -32,16 +37,16 @@ const Page = () => {
   const setProducts = useAppStore((state) => state.setProducts)
   const currentProduct = useAppStore((state) => state.currentProduct)
 
-  useEffect(()=>{
-    const fetchProducts = async ()=> {
+  useEffect(() => {
+    const fetchProducts = async () => {
       const res = await productsFirebase.getProducts()
-      if(res){
+      if (res) {
         setProducts(res)
       }
     }
 
     fetchProducts()
-  },[])
+  }, [])
 
   const getData = useCallback(
     (type: ProductType) => {
@@ -61,9 +66,9 @@ const Page = () => {
 
   return (
     <>
-      <ShoesForm data={getData(ProductType.Shoes) as ShoesProduct}/>
-      <PerfumeForm data={getData(ProductType.Perfume) as PerfumeProduct}/>
-      <WatchForm data={getData(ProductType.Watch) as WatchProduct}/>
+      <ShoesForm data={getData(ProductType.Shoes) as ShoesProduct} />
+      <PerfumeForm data={getData(ProductType.Perfume) as PerfumeProduct} />
+      <WatchForm data={getData(ProductType.Watch) as WatchProduct} />
       <div className="h-full min-h-0 flex flex-col items-stretch justify-between px-6 pt-8 overflow-hidden">
         <div className="flex-none flex items-center h-12 font-bold">
           <div className="flex-1 flex items-center gap-2 leading-none text-gray-400 text-2xl">

@@ -82,6 +82,7 @@ const page = () => {
       toast.success("Prize succesfully deleted", { toasterId: "bottom-right" })
     } catch (error) {
       console.error(error)
+      toast.success("Failed to the prize", { toasterId: "bottom-right" })
     }
   }
 
@@ -94,6 +95,7 @@ const page = () => {
       toast.success("Group succesfully deleted", { toasterId: "bottom-right" })
     } catch (error) {
       console.error(error)
+      toast.success("Failed to the group", { toasterId: "bottom-right" })
     }
   }
 

@@ -3,6 +3,9 @@ import { Product } from "@/types/products"
 import { Button } from "../common"
 import { Edit, Trash } from "react-feather"
 import { ProductAction } from "@/stores/slices/products-slice"
+import ConfirmationModal from "../common/ConfirmationModal"
+import productsFirebase from "@/firebase/firebase-products"
+import { toast } from "sonner"
 
 interface FieldConfig {
   label: string
@@ -19,6 +22,8 @@ const COMMON_FIELDS: FieldConfig[] = [
 
 const ProductList = () => {
   const products = useAppStore((state) => state.products)
+  const currentProduct = useAppStore((state) => state.currentProduct)
+  const setCurrentProduct = useAppStore((state) => state.setCurrentProduct)
   const setProducts = useAppStore((state) => state.setProducts)
 
   if (products.length === 0) {
@@ -29,24 +34,59 @@ const ProductList = () => {
     )
   }
 
+  const handleDeleteProduct = async () => {
+    if (!currentProduct?.id) return
+
+    try {
+      await productsFirebase.deleteProduct(currentProduct?.id)
+      const res = await productsFirebase.getProducts()
+      if (res) setProducts(res)
+      setCurrentProduct(null)
+      toast.success(`The ${currentProduct.name} succesfully deleted`, {
+        toasterId: "bottom-right",
+      })
+    } catch (error) {
+      toast.success(`Failed to delete the product ${currentProduct.name}`, {
+        toasterId: "bottom-right",
+      })
+    }
+  }
+
   return (
-    <table className="border-collapse border border-gray-600 w-full h-fit">
-      <thead>
-        <tr>
-          {COMMON_FIELDS.map(({ label }) => (
-            <th key={label} className="border border-gray-600 p-2 text-left">
-              {label}
+    <>
+      <ConfirmationModal
+        id="delete-product"
+        open={currentProduct?.actionType === ProductAction.Delete}
+        title={`Delete ${currentProduct?.name}`}
+        content={
+          <>
+            Are you sure you want to delete <b>{currentProduct?.name}</b>{" "}
+            product?
+          </>
+        }
+        onSuccessAwait={handleDeleteProduct}
+        onCancel={() => setCurrentProduct(null)}
+      />
+      <table className="border-collapse border border-gray-600 w-full h-fit">
+        <thead>
+          <tr>
+            {COMMON_FIELDS.map(({ label }) => (
+              <th key={label} className="border border-gray-600 p-2 text-left">
+                {label}
+              </th>
+            ))}
+            <th className="border border-gray-600 p-2 text-left w-11">
+              Actions
             </th>
+          </tr>
+        </thead>
+        <tbody>
+          {products.map((product) => (
+            <ProductRow key={product.id} product={product} />
           ))}
-          <th className="border border-gray-600 p-2 text-left w-11">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {products.map((product) => (
-          <ProductRow key={product.id} product={product} />
-        ))}
-      </tbody>
-    </table>
+        </tbody>
+      </table>
+    </>
   )
 }
 
