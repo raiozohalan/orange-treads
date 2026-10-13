@@ -18,13 +18,21 @@ const useSearchProducts = () => {
       filters: filterOptions,
     })
 
-    if(res) setProducts(res)
+    if (res) setProducts(res)
+  }
+
+  const addFilter = (filter: SearchProductsOptions["filters"]) => {
+    setFilterOptions((prev) => ({
+      ...prev,
+      ...filter,
+    }))
   }
 
   return {
     searchText,
     setSearchText,
     filterOptions,
+    addFilter,
     setFilterOptions,
     limitTo,
     setLimitTo,
