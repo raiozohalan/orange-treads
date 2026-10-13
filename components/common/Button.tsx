@@ -14,6 +14,7 @@ const buttonSizes = {
 }
 
 const roundedSizes = {
+  full: "rounded-full",
   small: "rounded-sm",
   medium: "rounded-md",
   large: "rounded-lg",
