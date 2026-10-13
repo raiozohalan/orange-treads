@@ -1,6 +1,13 @@
 "use client"
 import classNames from "@/utils/classNames"
-import React, { KeyboardEvent, ReactNode, useEffect, useId, useRef, useState } from "react"
+import {
+  KeyboardEvent,
+  ReactNode,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+} from "react"
 
 type MenuPosition = "top-left" | "top-right" | "bottom-left" | "bottom-right"
 
@@ -17,6 +24,7 @@ export interface MenuProps {
   items: MenuItem[]
   /** Text shown on the default trigger button */
   label?: string | ReactNode
+  value?: MenuItem["label"]
   /** Custom trigger content (e.g. an icon). Replaces the label and chevron */
   trigger?: ReactNode
   /** Where the menu opens. Default: "bottom-left" */
@@ -40,6 +48,7 @@ const positionClasses: Record<MenuPosition, string> = {
 const Menu = ({
   items,
   label = "Menu",
+  value,
   trigger,
   position = "bottom-left",
   disabled,
@@ -71,7 +80,7 @@ const Menu = ({
 
   const runItem = (item: MenuItem) => {
     if (item.disabled) return
-    if(onSelect) onSelect(item)
+    if (onSelect) onSelect(item)
     item.onClick?.()
     closeMenu(true)
   }
@@ -199,6 +208,7 @@ const Menu = ({
               className={classNames(
                 "flex items-center gap-2 px-3 py-2 text-sm cursor-pointer",
                 index === activeIndex && "bg-[#3c3d40]",
+                value === item.label && "bg-blue-500",
                 item.danger && "text-red-600",
                 item.disabled && "opacity-50 cursor-not-allowed"
               )}
