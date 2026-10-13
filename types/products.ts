@@ -240,7 +240,6 @@ export enum ProductType {
 }
 
 export interface BaseProduct {
-  id?: string
   supplierName: string
   supplierPrice: number | ""
   sellingPrice: number | ""

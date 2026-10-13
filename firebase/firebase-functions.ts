@@ -17,8 +17,13 @@ import {
   where,
   WhereFilterOp,
   documentId,
+  QueryConstraint,
+  Timestamp,
+  orderBy,
+  limit as fbLimit,
 } from "firebase/firestore"
 import { getClientDB } from "./init"
+import { tokenize } from "./search"
 
 const db = getClientDB()
 
@@ -121,7 +126,9 @@ const getItemsByIds = async (
     return []
   }
 
-  const uniqueIds = isUnique ? [...new Set(ids.filter(Boolean))] : ids.filter(Boolean) 
+  const uniqueIds = isUnique
+    ? [...new Set(ids.filter(Boolean))]
+    : ids.filter(Boolean)
   if (uniqueIds.length === 0) {
     return []
   }
@@ -150,6 +157,37 @@ const getItemsByIds = async (
   return uniqueIds
     .map((id) => byId.get(id))
     .filter((item): item is Record<string, any> => Boolean(item))
+}
+
+/**
+ * Get documents where a date field falls between start and end (inclusive).
+ * Usage: getItemsByDateRange("products_table", "dateCreated", startDate, endDate)
+ */
+const getItemsByDateRange = async (
+  table: string,
+  field: string,
+  start: Date,
+  end: Date,
+  extraConstraints: QueryConstraint[] = []
+): Promise<Array<Record<string, any>>> => {
+  if (!db) return []
+
+  // Cover the whole end day (23:59:59.999)
+  const endOfDay = new Date(end)
+  endOfDay.setHours(23, 59, 59, 999)
+
+  const startOfDay = new Date(start)
+  startOfDay.setHours(0, 0, 0, 0)
+
+  const q = query(
+    collection(db, table),
+    where(field, ">=", Timestamp.fromDate(startOfDay)),
+    where(field, "<=", Timestamp.fromDate(endOfDay)),
+    orderBy(field, "desc"),
+    ...extraConstraints
+  )
+
+  return (await queryItems(q)) ?? []
 }
 
 // Real-time updates
@@ -200,6 +238,55 @@ const getRef = (table: string, id: string): DocumentReference | null => {
   return doc(db, table, id)
 }
 
+/**
+ * Search a collection using the `searchKeywords` array field.
+ * - With a term: queries by the longest token (most selective) and filters
+ *   the remaining tokens client-side.
+ * - Without a term: runs the constraints alone (filters-only mode).
+ * - With neither: returns [].
+ * Usage: searchItems("products_table", "gaming lap", { limitTo: 10 })
+ */
+const searchItems = async (
+  table: string,
+  term: string,
+  options: {
+    field?: string
+    limitTo?: number
+    constraints?: QueryConstraint[]
+  } = {}
+): Promise<Array<Record<string, any>>> => {
+  if (!db) return []
+
+  const { field = "searchKeywords", limitTo = 20, constraints = [] } = options
+  const tokens = tokenize(term)
+
+  // Filters only: no search term, so skip the keyword query
+  if (tokens.length === 0) {
+    const q = query(collection(db, table), ...constraints, fbLimit(limitTo))
+    return (await queryItems(q)) ?? []
+  }
+
+  const [primary] = [...tokens].sort((a, b) => b.length - a.length)
+  const isSingleToken = tokens.length === 1
+
+  const q = query(
+    collection(db, table),
+    where(field, "array-contains", primary),
+    ...constraints,
+    // With multiple tokens, limit after client-side filtering instead
+    ...(isSingleToken ? [fbLimit(limitTo)] : [])
+  )
+
+  const results = (await queryItems(q)) ?? []
+
+  return results
+    .filter((item) => {
+      const keywords: string[] = item[field] ?? []
+      return tokens.every((t) => keywords.includes(t))
+    })
+    .slice(0, limitTo)
+}
+
 const firebaseFunctions = {
   addItem,
   getItem,
@@ -211,6 +298,8 @@ const firebaseFunctions = {
   queryItems,
   getItemsByIds,
   getRef,
+  getItemsByDateRange,
+  searchItems,
 }
 
 export default firebaseFunctions
