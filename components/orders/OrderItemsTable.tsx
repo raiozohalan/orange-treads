@@ -162,7 +162,7 @@ const OrderItem = ({
       {/* Row 1: main product details */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
         <div className="min-w-0 col-span-2 lg:col-span-1">
-          <p className="text-xl font-bold text-gray-100 leading-none">
+          <p className="text-xl font-bold text-blue-400 leading-none">
             {product.name || "—"}
           </p>
           <div className="flex items-center gap-1">
