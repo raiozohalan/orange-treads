@@ -176,7 +176,7 @@ const WatchForm = ({ data, onClose }: ShoesFormProps) => {
                 baseId={watchMovementId}
                 tabs={watchMovement}
                 selected={watch.watchMovement}
-                onSelect={(id) =>
+                onSelectAction={(id) =>
                   setWatch((prev) => ({
                     ...prev,
                     watchMovement: id as WatchMovement,
@@ -192,7 +192,7 @@ const WatchForm = ({ data, onClose }: ShoesFormProps) => {
                 baseId={watchDisplayId}
                 tabs={watchDisplay}
                 selected={watch.wathDisplay}
-                onSelect={(id) =>
+                onSelectAction={(id) =>
                   setWatch((prev) => ({
                     ...prev,
                     wathDisplay: id as WatchDisplay,

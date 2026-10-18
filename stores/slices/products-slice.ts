@@ -10,6 +10,8 @@ type ProductForm = Product & {
   actionType: ProductAction
 }
 export interface ProductsSlice {
+  isFetchingProducts: boolean
+  setFetchingProducts: (isFetching: boolean) => void
   products: Product[]
   setProducts: (products: Product[]) => void
   addProduct: (products: Product) => void
@@ -20,6 +22,8 @@ export interface ProductsSlice {
 }
 
 export const initialOrdersSlice: ProductsSlice = {
+  isFetchingProducts: false,
+  setFetchingProducts: () => {},
   products: [],
   setProducts: () => {},
   addProduct: () => {},
@@ -30,6 +34,9 @@ export const initialOrdersSlice: ProductsSlice = {
 }
 
 export const createProductsSlice = (set: any): ProductsSlice => ({
+  isFetchingProducts: false,
+  setFetchingProducts: (isFetching: boolean) =>
+    set({ isFetchingProducts: isFetching }),
   products: [],
   setProducts: (products) => set({ products }),
   addProduct: (product) =>

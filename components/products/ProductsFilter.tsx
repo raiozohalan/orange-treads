@@ -1,7 +1,9 @@
-import { useMemo } from "react"
+import { useEffect, useMemo } from "react"
 import Menu from "../common/Menu"
 import { ProductType } from "@/types/products"
-import useSearchProducts from "@/hooks/useSearchProducts"
+import useSearchProducts, {
+  UseSearchProductsProps,
+} from "@/hooks/useSearchProducts"
 import { Button, TextField } from "../common"
 import { Search } from "react-feather"
 
@@ -13,7 +15,10 @@ const PRODUCT_TYPE = [
 ]
 const DEFAULT_PRODUCT_TYPE = PRODUCT_TYPE[0]
 
-const ProductsFilter = () => {
+const ProductsFilter = ({
+  state,
+  reset,
+}: UseSearchProductsProps & { reset?: boolean }) => {
   const {
     searchText,
     setSearchText,
@@ -21,7 +26,15 @@ const ProductsFilter = () => {
     addFilter,
     setFilterOptions,
     onSearchProducts,
-  } = useSearchProducts()
+  } = useSearchProducts({ state })
+
+  useEffect(() => {
+    if (reset) {
+      setFilterOptions({})
+      setSearchText("")
+      onSearchProducts(true)
+    }
+  }, [reset])
 
   const productTypeValue = useMemo(() => {
     return filterOptions?.type || DEFAULT_PRODUCT_TYPE.label
@@ -65,7 +78,6 @@ const ProductsFilter = () => {
       >
         <Search className="w-3.5 h-3.5" /> Search
       </Button>
-      <div className="h-5 w-px bg-gray-600 mx-2" />
     </>
   )
 }

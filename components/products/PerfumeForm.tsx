@@ -178,7 +178,7 @@ const PerfumeForm = ({ data, onClose }: ShoesFormProps) => {
                 baseId={concentrationId}
                 tabs={concentration}
                 selected={product.concentration}
-                onSelect={(id) =>
+                onSelectAction={(id) =>
                   setProduct((prev) => ({
                     ...prev,
                     concentration: id as PerfumeConcentration,
@@ -194,7 +194,7 @@ const PerfumeForm = ({ data, onClose }: ShoesFormProps) => {
                 baseId={scentFamilyId}
                 tabs={scentFamily}
                 selected={product.scentFamily}
-                onSelect={(id) =>
+                onSelectAction={(id) =>
                   setProduct((prev) => ({
                     ...prev,
                     scentFamily: id as PerfumeScentFamily,

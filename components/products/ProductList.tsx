@@ -6,6 +6,7 @@ import { ProductAction } from "@/stores/slices/products-slice"
 import ConfirmationModal from "../common/ConfirmationModal"
 import productsFirebase from "@/firebase/firebase-products"
 import { toast } from "sonner"
+import { TableBodySkeleton } from "../common/TableSkeleton"
 
 interface FieldConfig {
   label: string
@@ -19,12 +20,14 @@ const COMMON_FIELDS: FieldConfig[] = [
   { label: "Supplier Price", keyName: "supplierPrice" },
   { label: "Selling Price", keyName: "sellingPrice" },
 ]
+const COMMON_FIELDS_COUNT = COMMON_FIELDS.length + 1
 
 const ProductList = () => {
   const products = useAppStore((state) => state.products)
   const currentProduct = useAppStore((state) => state.currentProduct)
   const setCurrentProduct = useAppStore((state) => state.setCurrentProduct)
   const setProducts = useAppStore((state) => state.setProducts)
+  const isLoading = useAppStore((state) => state.isFetchingProducts)
 
   if (products.length === 0) {
     return (
@@ -81,9 +84,13 @@ const ProductList = () => {
           </tr>
         </thead>
         <tbody>
-          {products.map((product) => (
-            <ProductRow key={product.id} product={product} />
-          ))}
+          {isLoading ? (
+            <TableBodySkeleton rows={3} columns={COMMON_FIELDS_COUNT} />
+          ) : (
+            products.map((product) => (
+              <ProductRow key={product.id} product={product} />
+            ))
+          )}
         </tbody>
       </table>
     </>

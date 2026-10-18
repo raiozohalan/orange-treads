@@ -240,6 +240,7 @@ export enum ProductType {
 }
 
 export interface BaseProduct {
+  id?: string
   supplierName: string
   supplierPrice: number | ""
   sellingPrice: number | ""
@@ -280,7 +281,6 @@ export interface WatchProduct extends BaseProduct {
 }
 
 export type Product = (ShoesProduct | PerfumeProduct | WatchProduct) & {
-  id?: string
   dateCreated?: Date
   dateUpdated?: Date
 }
