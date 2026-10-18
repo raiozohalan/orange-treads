@@ -236,7 +236,7 @@ const page = () => {
               <Button
                 variant="secondary"
                 size="medium"
-                className="flex-none text-sm gap-1! pr-2.5 capitalize! text-gray-300!"
+                className="flex-none text-sm gap-1! pr-3.5 capitalize! text-gray-300!"
                 onClick={() =>
                   setCurrentPrize({ ...InitialPrize, type: "upsert" })
                 }

@@ -148,7 +148,7 @@ const SpinWheelPrizeForm = ({
   return (
     <Dialog id={MODAL_ID} popover="manual">
       <div className="dialog-content flex flex-col items-center justify-center w-90 py-4 px-6">
-        <h2 className="text-2xl font-bold text-white">Add Prize</h2>
+        <h2 className="text-2xl font-bold text-white">{data?.id ? "Update" : "Add"} Prize</h2>
         <form
           onSubmit={handleOnSubmit}
           method="dialog"

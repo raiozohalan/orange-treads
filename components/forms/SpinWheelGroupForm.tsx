@@ -110,7 +110,9 @@ const SpinWheelGroupForm = ({
   return (
     <Dialog id={MODAL_ID} popover="manual">
       <div className="dialog-content flex flex-col items-center justify-center w-96 py-4 px-6 bg-gray-700 rounded-lg">
-        <h2 className="text-2xl font-bold text-white">Add Group</h2>
+        <h2 className="text-2xl font-bold text-white">
+          {data?.id ? "Update" : "Add"} Group
+        </h2>
         <form
           onSubmit={handleOnSubmit}
           method="dialog"
@@ -153,6 +155,8 @@ const SpinWheelGroupForm = ({
                 <LoadingSpinner className="w-4 h-4 text-white animate-spin" />
                 Saving...
               </>
+            ) : data?.id ? (
+              "Save Group"
             ) : (
               "Add Group"
             )}
