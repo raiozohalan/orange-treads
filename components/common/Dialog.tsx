@@ -1,7 +1,7 @@
 import classNames from "@/utils/classNames"
-import { HtmlHTMLAttributes, ReactNode } from "react"
+import { DialogHTMLAttributes, ReactNode } from "react"
 
-interface DialogProps extends HtmlHTMLAttributes<HTMLDialogElement> {
+interface DialogProps extends DialogHTMLAttributes<HTMLDialogElement> {
   id: string
   children: ReactNode
   showBackdrop?: boolean

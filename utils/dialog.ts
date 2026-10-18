@@ -15,11 +15,11 @@ const getDialogActions = (
   close: () => void
 } => {
   const open = () => {
-    getDialog(dialogId).showModal()
+    getDialog(dialogId)?.showModal()
   }
 
   const close = () => {
-    getDialog(dialogId).close()
+    getDialog(dialogId)?.close()
   }
 
   return { open, close }
