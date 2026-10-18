@@ -59,6 +59,7 @@ const PageHeader = () => {
         </div>
         <div className="flex-1 flex items-center justify-end gap-2">
           <ProductsFilter />
+          <div className="h-5 w-px bg-gray-600 mx-2" />
           <Menu
             label={
               <>
