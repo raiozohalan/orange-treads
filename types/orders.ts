@@ -1,4 +1,4 @@
-import { Perfume, Shoes, Watch } from "./products"
+import {  PerfumeProduct, Product, Shoes, WatchProduct } from "./products"
 
 export enum OrderStatus {
   Processing = "processing",
@@ -7,19 +7,30 @@ export enum OrderStatus {
   Cancelled = "cancelled",
 }
 
-export type OrderItems = (Shoes | Perfume | Watch) & {
+export type ProductDetails = (Shoes | PerfumeProduct | WatchProduct) & {
+  dateCreated?: Date
+  dateUpdated?: Date
+}
+
+export interface OrderItems {
+  id: string
   trackingNo: string
+  discount: number
   status: OrderStatus
+  total: number
+  profit: number
+  productDetails: ProductDetails
 }
 
 export interface Order {
   id?: string
   customerName: string
-  downpayment: number
+  downPayment: number | ""
   address: string
   orderItems: OrderItems[]
-  orderTotal: number
+  total: number
   profit: number
+  discount: number
 }
 
 export interface OrderWithAuditFields extends Order {

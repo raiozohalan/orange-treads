@@ -1,348 +1,221 @@
 "use client"
 
-import React, { useEffect, useState } from "react"
+import React, { useCallback, useEffect, useState } from "react"
 import { Button, TextField, TextArea } from "../common"
 import { LoadingSpinner } from "../icons"
 import { useAppStore } from "@/providers/app-store-provider"
 import getDialogActions from "@/utils/dialog"
 import { toast } from "sonner"
 import Dialog from "../common/Dialog"
-import { Order, OrderStatus } from "@/types/orders"
+import { Order, OrderItems } from "@/types/orders"
 import { ordersFirebase } from "@/firebase/firebase-orders"
-import classNames from "@/utils/classNames"
-import { Trash, Upload } from "react-feather"
-import firebaseStorageFunctions from "@/firebase/firebase-storage"
-import Menu, { MenuItem } from "../common/Menu"
-import Status from "./Status"
-import { ShoeSizeTabs } from "./ShoeSizesTab"
-
-type OrderFileImage = Order<File>
-
-const createInitialOrder = (): OrderFileImage => ({
-  trackingNo: "",
-  customerName: "",
-  shoesName: "",
-  shoesImage: "",
-  size: {
-    region: "EU",
-    category: "adult",
-    size: "20",
-  },
-  supplierName: "",
-  supplierPrice: 0,
-  sellingPrice: 0,
-  downpayment: 0,
-  address: "",
-  status: OrderStatus.Processing,
-})
-
-const amountFields = [
-  ["supplierPrice", "Supplier Price"],
-  ["sellingPrice", "Selling Price"],
-  ["downpayment", "Downpayment"],
-] as const
+import ProductsModal from "./ProductsModal"
+import { Plus } from "react-feather"
+import OrderItemsTable from "./OrderItemsTable"
+import { OrderAction } from "@/stores/slices/orders-slice"
 
 interface OrderFormProps {
   onClose?: () => void
 }
 
+type CustomerDetails = Pick<Order, "customerName" | "address" | "downPayment">
+type OrderTotals = Pick<Order, "discount" | "profit" | "total">
+
+const INITIAL_DATA: CustomerDetails = {
+  customerName: "",
+  address: "",
+  downPayment: "",
+}
+
 const MODAL_ID = "order-form"
 const dialogActions = getDialogActions(MODAL_ID)
+const productDialogActions = getDialogActions("order-product-table")
 
 const OrderForm = ({ onClose }: OrderFormProps) => {
-  const orders = useAppStore((state) => state.orders)
   const currentOrder = useAppStore((state) => state.currentOrder)
   const setCurrentOrder = useAppStore((state) => state.setCurrentOrder)
-  const setOrders = useAppStore((state) => state.setOrders)
+  const addNewOrder = useAppStore((state) => state.addNewOrder)
   const updateStoredOrder = useAppStore((state) => state.updateOrder)
-  const [order, setOrder] = useState<OrderFileImage>(createInitialOrder)
+  const [userDetails, setUserDetails] = useState<CustomerDetails>(INITIAL_DATA)
   const [isSaving, setIsSaving] = useState<boolean>(false)
-  const [imagePreview, setImagePreview] = useState<string | null>(null)
 
   useEffect(() => {
     if (
-      true
-      // currentOrder &&
-      // [OrderAction.Create, OrderAction.Update].includes(currentOrder.type)
+      currentOrder &&
+      [OrderAction.Create, OrderAction.Update].includes(currentOrder.type)
     ) {
       dialogActions.open()
     }
   }, [currentOrder?.type])
 
-  const onChangeOrder = (newData: Partial<OrderFileImage>) =>
-    setOrder((previous) => ({ ...previous, ...newData }))
-
   const handleFormChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement
+    >
   ) => {
     const target = e.target
-    const field = target.name as keyof OrderFileImage
-    let value: Order[keyof Order] | File = target.value
+    const field = target.name as keyof CustomerDetails
+    const value =
+      target.type === "number"
+        ? (target as HTMLInputElement).valueAsNumber
+        : target.value
 
-    if ("files" in target && target?.files && target?.files?.length > 0) {
-      value = target.files[0]
-      setImagePreview(URL.createObjectURL(value as File))
-    } else if (target instanceof HTMLInputElement && target.type === "number") {
-      value = Number(target.value)
-    } else if (field === "status") {
-      value = target.value as OrderStatus
-    }
-
-    onChangeOrder({ [field]: value })
+    setUserDetails((previous) => ({ ...previous, [field]: value }))
   }
 
   const handleClose = () => {
-    setOrder(createInitialOrder())
+    setUserDetails(INITIAL_DATA)
     setCurrentOrder(null)
     onClose?.()
     dialogActions.close()
   }
 
-  const handleOnSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    try {
-      setIsSaving(true)
-      let imageUrl: string = !order.image && imagePreview ? imagePreview : ""
-      if (
-        order.image &&
-        typeof order.image !== "string" &&
-        order.image instanceof File
-      ) {
-        const imageId = crypto.randomUUID()
-        const savedImage = await firebaseStorageFunctions.saveFile(
-          `spin_wheel_prizes/${imageId}-${order.image.name}`,
-          order.image
-        )
-        if (savedImage) {
-          imageUrl = savedImage
-        } else {
-          toast.error("Failed to upload image", { toasterId: "bottom-right" })
-          return
-        }
-      }
+  const handleOnSubmit = useCallback(
+    async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault()
+      if (!currentOrder) return
+      try {
+        setIsSaving(true)
 
-      const orderData = { ...order, image: imageUrl }
-      if (order.id) {
-        const res = await ordersFirebase.updateOrder(order.id, orderData)
-        if (!res) {
-          throw new Error("Failed to update order")
+        const defaultTotals = { total: 0, profit: 0, discount: 0 }
+        const orderAdditonalDetails: OrderTotals =
+          currentOrder?.orderItems?.reduce(
+            (acc: OrderTotals, curr: OrderItems) => {
+              acc.total += curr.total
+              acc.profit += curr.profit
+              acc.discount += curr.discount
+              return acc
+            },
+            defaultTotals
+          ) ?? defaultTotals
+
+        const { type, ...resCurrentOrder } = currentOrder
+        const payload: Order = {
+          ...resCurrentOrder,
+          ...userDetails,
+          ...orderAdditonalDetails,
         }
-        updateStoredOrder(orderData)
-        toast.success("Order updated successfully", {
+
+        if (currentOrder?.id) {
+          const res = await ordersFirebase.updateOrder(currentOrder.id, payload)
+          if (!res) {
+            throw new Error("Failed to update order")
+          }
+          updateStoredOrder(payload)
+          toast.success("Order updated successfully", {
+            toasterId: "bottom-right",
+          })
+        } else {
+          const newOrder = await ordersFirebase.addNewOrder(payload)
+          if (!newOrder) {
+            throw new Error("Failed to add new order")
+          }
+          addNewOrder({ ...payload, id: newOrder })
+          toast.success("Order created successfully", {
+            toasterId: "bottom-right",
+          })
+        }
+        handleClose()
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : String(err), {
           toasterId: "bottom-right",
         })
-      } else {
-        const newOrder = await ordersFirebase.addNewOrder(orderData)
-        if (!newOrder) {
-          throw new Error("Failed to add new order")
-        }
-        setOrders([...orders, { ...orderData, id: newOrder }])
-        toast.success("Order created successfully", {
-          toasterId: "bottom-right",
-        })
+      } finally {
+        setIsSaving(false)
       }
-      handleClose()
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : String(err), {
-        toasterId: "bottom-right",
-      })
-    } finally {
-      setIsSaving(false)
-    }
-  }
+    },
+    [userDetails, currentOrder]
+  )
 
   return (
-    <Dialog id={MODAL_ID} popover="manual">
-      <div className="dialog-content flex flex-col items-start w-full max-w-2xl min-0 max-h-[94vh] rounded-lg">
-        <h2 className="flex-none text-xl font-bold text-white px-6 py-4">
-          {order.id ? "Edit Order" : "Add Order"}
-        </h2>
-        <form
-          onSubmit={handleOnSubmit}
-          className="flex-1 flex flex-col gap-4 w-full max-h-full px-6 pb-6 overflow-y-auto"
-        >
-          <div>
-            <input
-              id="image-picker"
-              type="file"
-              name="image"
-              accept="image/png, image/jpeg, image/jpg, image/webp"
-              value=""
-              onChange={handleFormChange}
-              className="hidden"
-            />
-            <div
-              className={classNames(
-                "relative group w-full h-28 flex items-center justify-center bg-gray-600/70 rounded-md overflow-hidden cursor-pointer",
-                imagePreview ? "p-2" : "p-0"
-              )}
-            >
-              {imagePreview ? (
-                <>
-                  <img
-                    src={imagePreview}
-                    alt="Prize"
-                    className="w-auto h-20 object-cover rounded-md"
-                  />
-                </>
-              ) : (
-                <label
-                  htmlFor="image-picker"
-                  className={classNames(
-                    "w-full h-full flex items-center justify-center gap-2 text-gray-400 text-base cursor-pointer",
-                    "hover:scale-110 hover:text-white hover:bg-gray-800 transition-opacity duration-300 ease-in-out",
-                    isSaving ? "pointer-events-none opacity-50" : ""
-                  )}
-                >
-                  <Upload size={16} /> Add Image
-                </label>
-              )}
-            </div>
-            <div className="flex items-center justify-between gap-2 mt-3">
-              <Button
-                fullWidth
-                variant="secondary"
-                size="small"
-                className="h-7 px-0 py-0"
-                disabled={isSaving}
-              >
-                <label
-                  htmlFor="image-picker"
-                  className="w-full h-full flex items-center justify-center gap-1 cursor-pointer capitalize font-normal"
-                >
-                  <Upload size={16} /> Upload
-                </label>
-              </Button>
-              <Button
-                fullWidth
-                variant="secondary"
-                size="small"
-                className="capitalize! font-normal"
-                disabled={isSaving || !imagePreview}
-                onClick={() => {
-                  setImagePreview(null)
-                  onChangeOrder({
-                    image: undefined,
-                  })
-                }}
-              >
-                <Trash size={16} /> Remove
-              </Button>
-            </div>
-          </div>
-          <hr className="w-full border-t border-gray-700/70 mt-2" />
-          <div>
-            <b className="text-white text-base leading-none">
-              Shipping Details:
-            </b>
-            <div className="grid grid-cols-2 gap-3 mt-2">
-              <TextField
-                label="Customer Name"
-                name="customerName"
-                value={order.customerName}
-                onChange={handleFormChange}
-                required
-              />
-              <TextField
-                label="Tracking No."
-                name="trackingNo"
-                value={order.trackingNo}
-                onChange={handleFormChange}
-              />
-              <TextArea
-                label="Delivery Address"
-                name="address"
-                value={order.address}
-                onChange={handleFormChange}
-                className="min-h-5! text-gray-300"
-                required
-              />
-              <Status
-                label="Delivery Status"
-                status={order.status}
-                onSelect={(status: MenuItem) =>
-                  setOrder((prev) => ({
-                    ...prev,
-                    status: status.label as OrderStatus,
-                  }))
-                }
-              />
-            </div>
-          </div>
-          <hr className="border-t border-gray-700/70 mt-2" />
-          <div>
-            <b className="text-white text-base leading-none">
-              Order Details:
-            </b>
-            <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4 h-auto mt-2">
-              <TextField
-                label="Shoe Name"
-                name="shoesName"
-                value={order.shoesName}
-                onChange={handleFormChange}
-                required
-              />
-
-              {amountFields.map(([field, label]) => (
+    <>
+      <ProductsModal />
+      <Dialog id={MODAL_ID} popover="manual">
+        <div className="dialog-content flex flex-col items-start w-full max-w-2xl h-full lg:min-0 lg:max-h-[94vh] rounded-lg">
+          <h2 className="flex-none text-xl font-bold text-white px-4 lg:px-6 py-4">
+            {currentOrder?.id ? "Edit Order" : "Add Order"}
+          </h2>
+          <form
+            onSubmit={handleOnSubmit}
+            className="flex-1 flex flex-col gap-4 w-full lg:max-h-full px-4 lg:px-6 pb-6 overflow-y-auto"
+          >
+            <div className="flex-none">
+              {/* <b className="text-white text-base leading-none">
+                Shipping Details:
+              </b> */}
+              <div className="grid lg:grid-cols-2 gap-2 lg:gap-7 mt-2">
                 <TextField
-                  key={field}
-                  label={label}
-                  name={field}
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={order[field]}
+                  label="Customer Name"
+                  name="customerName"
+                  value={userDetails.customerName}
                   onChange={handleFormChange}
+                  required
                 />
-              ))}
-            </div> 
-            <label className="inline-block text-sm text-gray-400 mt-4">Shoe Size:</label>
-            <ShoeSizeTabs
-              size={order.size}
-              onSelect={(size) =>
-                onChangeOrder({
-                  size,
-                })
-              }
-              className="flex-none mt-1.5"
-            />
-          </div>
-          <div className="flex gap-3 mt-4">
-            <Button
-              type="button"
-              variant="secondary"
-              size="large"
-              fullWidth
-              onClick={handleClose}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" size="large" fullWidth disabled={isSaving}>
-              {isSaving ? (
-                <>
-                  <LoadingSpinner className="w-4 h-4 text-white animate-spin" />{" "}
-                  Saving...
-                </>
-              ) : order.id ? (
-                "Save Changes"
-              ) : (
-                "Create Order"
-              )}
-            </Button>
-          </div>
-        </form>
-      </div>
-    </Dialog>
+                <TextField
+                  label="Down Payment"
+                  type="number"
+                  name="downPayment"
+                  value={userDetails.downPayment}
+                  onChange={handleFormChange}
+                  required
+                />
+                <TextArea
+                  label="Delivery Address"
+                  name="address"
+                  value={userDetails.address}
+                  onChange={handleFormChange}
+                  className="min-h-5! text-gray-300"
+                  required
+                />
+              </div>
+            </div>
+            <hr className="flex-none border-t border-gray-700/70 mt-2" />
+            <div className="flex-none flex items-center justify-between">
+              <b className="text-white text-base leading-none">
+                Order Details:
+              </b>
+              <Button
+                type="button"
+                variant="primary"
+                size="small"
+                onClick={() => productDialogActions.open()}
+                className="gap-1! capitalize!"
+              >
+                <Plus className="w-4 h-4" />
+                Add Product
+              </Button>
+            </div>
+            <div className="lg:flex-1 lg:min-h-full w-full lg:overflow-y-scroll">
+              <OrderItemsTable items={currentOrder?.orderItems ?? []} />
+            </div>
+            <div className="flex-none flex gap-3 mt-4">
+              <Button
+                type="button"
+                variant="secondary"
+                size="large"
+                fullWidth
+                onClick={handleClose}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" size="large" fullWidth disabled={isSaving}>
+                {isSaving ? (
+                  <>
+                    <LoadingSpinner className="w-4 h-4 text-white animate-spin" />{" "}
+                    Saving...
+                  </>
+                ) : currentOrder?.id ? (
+                  "Save Changes"
+                ) : (
+                  "Create Order"
+                )}
+              </Button>
+            </div>
+          </form>
+        </div>
+      </Dialog>
+    </>
   )
-}
-
-const formatDate = (date: Date) => {
-  const parsedDate = date instanceof Date ? date : new Date(date)
-  if (Number.isNaN(parsedDate.getTime())) return ""
-  const year = parsedDate.getFullYear()
-  const month = String(parsedDate.getMonth() + 1).padStart(2, "0")
-  const day = String(parsedDate.getDate()).padStart(2, "0")
-  return `${year}-${month}-${day}`
 }
 
 export default OrderForm
