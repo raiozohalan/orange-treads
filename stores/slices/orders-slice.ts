@@ -1,4 +1,4 @@
-import { Order, OrderItems } from "@/types/orders"
+import { Order, OrderItems, OrderWithAuditFields } from "@/types/orders"
 import { Product } from "@/types/products"
 
 export enum OrderAction {
@@ -9,11 +9,14 @@ export enum OrderAction {
 
 interface OrderForm extends Order {
   type: OrderAction
+  dateCreated?: Date
+  dateUpdated?: Date
 }
+
 export interface OrdersSlice {
-  orders: Order[]
-  setOrders: (orders: Order[]) => void
-  addNewOrder: (orders: Order) => void
+  orders: OrderWithAuditFields[]
+  setOrders: (orders: OrderWithAuditFields[]) => void
+  addNewOrder: (orders: OrderWithAuditFields) => void
   currentOrder: OrderForm | null
   setCurrentOrder: (order: OrderForm | null) => void
   addOrderitem: (order: OrderItems) => void
@@ -49,7 +52,7 @@ export const initialOrdersSlice: OrdersSlice = {
 export const createOrdersSlice = (set: any): OrdersSlice => ({
   orders: [],
   setOrders: (orders) => set({ orders }),
-  addNewOrder: (newOrder: Order) =>
+  addNewOrder: (newOrder: OrderWithAuditFields) =>
     set((state: OrdersSlice) => ({ orders: [...state.orders, newOrder] })),
   currentOrder: null,
   setCurrentOrder: (order) => set({ currentOrder: order }),
@@ -62,20 +65,21 @@ export const createOrdersSlice = (set: any): OrdersSlice => ({
     })),
   updateOrderitem: (item) =>
     set((state: OrdersSlice) => {
-      console.log("====>updateOrderitem",{item,state})
-      return ({
-      currentOrder: {
-        ...state?.currentOrder,
-        orderItems: state?.currentOrder?.orderItems.map((d) =>
-          d.id === item.id ? { ...d, ...item } : d
-        ),
-      },
-    })}),
+      console.log("====>updateOrderitem", { item, state })
+      return {
+        currentOrder: {
+          ...state?.currentOrder,
+          orderItems: state?.currentOrder?.orderItems?.map((d) =>
+            d.id === item.id ? { ...d, ...item } : d
+          ),
+        },
+      }
+    }),
   deleteOrderitem: (orderId) =>
     set((state: OrdersSlice) => ({
       currentOrder: {
         ...state?.currentOrder,
-        orderItems: state?.currentOrder?.orderItems.filter(
+        orderItems: state?.currentOrder?.orderItems?.filter(
           (d) => d.id !== orderId
         ),
       },

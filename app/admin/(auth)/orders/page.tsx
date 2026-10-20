@@ -5,9 +5,23 @@ import OrderForm from "@/components/orders/OrderForm"
 import { useAppStore } from "@/providers/app-store-provider"
 import { Plus, Table } from "react-feather"
 import { OrderAction } from "@/stores/slices/orders-slice"
+import OrderList from "@/components/orders/OrderList"
+import { useEffect } from "react"
+import { ordersFirebase } from "@/firebase/firebase-orders"
 
 const Page = () => {
+  const setOrders = useAppStore((state) => state.setOrders)
   const setCurrentOrder = useAppStore((state) => state.setCurrentOrder)
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      const res = await ordersFirebase.getOrders()
+      setOrders(res ?? [])
+    }
+
+    fetchOrders()
+  }, [])
+
   return (
     <>
       <OrderForm />
@@ -27,13 +41,7 @@ const Page = () => {
         </div>
         <hr className="flex-none mt-1 mb-7 border-gray-800" />
         <div className="flex-1 min-h-0 flex items-stretch justify-between gap-10 w-full">
-          <div className="flex-1 flex flex-col items-start justify-start gap-4">
-            <div className="flex items-center justify-between w-full">
-              <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">
-                No orders found.
-              </div>
-            </div>
-          </div>
+          <OrderList />
         </div>
       </div>
     </>

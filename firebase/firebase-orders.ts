@@ -1,17 +1,9 @@
 "use client"
 
-import {
-  WheelGroup,
-  WheelGroupInput,
-  WheelGroupWithPrizes,
-  WheelPrize,
-  WheelPrizeInput,
-} from "@/types/spin-wheel"
 import firebaseFunctions from "./firebase-functions"
 import { Order, OrderWithAuditFields } from "@/types/orders"
 
 const ORDERS_COLLECTION = "orders_table"
-const SPIN_WHEEL_HISTORY_COLLECTION = "spin_wheel_history"
 
 /**
  * Fetch all orders.
@@ -46,13 +38,21 @@ const getItemsById = async (prizeId: string): Promise<Order | null> => {
  * Create a new order.
  * Returns the new order document ID, or null if creation failed.
  */
-const addNewOrder = async (order: Order): Promise<string | null> => {
-  const newId = await firebaseFunctions.addItem(ORDERS_COLLECTION, {
-    ...order,
+const addNewOrder = async (
+  order: Order
+): Promise<Pick<
+  OrderWithAuditFields,
+  "id" | "dateCreated" | "dateUpdated"
+> | null> => {
+  const dates = {
     dateCreated: new Date(),
     dateUpdated: new Date(),
+  }
+  const newId = await firebaseFunctions.addItem(ORDERS_COLLECTION, {
+    ...order,
+    ...dates,
   })
-  return newId ?? null
+  return newId ? { id: newId, ...dates } : null
 }
 
 /**
