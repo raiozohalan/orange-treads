@@ -135,7 +135,6 @@ const OrderItem = ({
   }
 
   const handleSaveItem = () => {
-    console.log("======>draft", draft)
     updateOrderitem({
       ...draft,
       total: total,
@@ -174,18 +173,18 @@ const OrderItem = ({
         </div>
 
         <div>
-          <p className="mb-1 text-xs font-medium text-gray-400">
+          <p className="mb-0.5 text-xs font-medium text-gray-400">
             Supplier Price
           </p>
-          <p className="text-gray-100">
+          <p className="text-base text-gray-100">
             {money(toNumber(product.supplierPrice))}
           </p>
         </div>
         <div>
-          <p className="mb-1 text-xs font-medium text-gray-400">
+          <p className="mb-0.5 text-xs font-medium text-gray-400">
             Selling Price
           </p>
-          <p className="text-gray-100">
+          <p className="text-base text-gray-100">
             {money(toNumber(product.sellingPrice))}
           </p>
         </div>
