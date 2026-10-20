@@ -1,14 +1,9 @@
+import { FormAction } from "@/types/common"
 import { Order, OrderItems, OrderWithAuditFields } from "@/types/orders"
 import { Product } from "@/types/products"
 
-export enum OrderAction {
-  Create = "create",
-  Update = "update",
-  Delete = "delete",
-}
-
 interface OrderForm extends Order {
-  type: OrderAction
+  type: FormAction
   dateCreated?: Date
   dateUpdated?: Date
 }

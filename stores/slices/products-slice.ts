@@ -1,13 +1,8 @@
+import { FormAction } from "@/types/common"
 import { Product } from "@/types/products"
 
-export enum ProductAction {
-  Create = "create",
-  Update = "update",
-  Delete = "delete",
-}
-
 type ProductForm = Product & {
-  actionType: ProductAction
+  actionType: FormAction
 }
 export interface ProductsSlice {
   isFetchingProducts: boolean
