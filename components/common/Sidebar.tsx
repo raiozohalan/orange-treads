@@ -4,29 +4,36 @@ import classNames from "@/utils/classNames"
 import Button from "./Button"
 import Link from "next/dist/client/link"
 import { usePathname } from "next/dist/client/components/navigation"
-import { Edit, LogOut } from "react-feather"
+import { BarChart2, LifeBuoy, LogOut, ShoppingBag, Table } from "react-feather"
 import logo from "@/assets/logo.webp"
 import { getClientAuth } from "@/firebase/init"
+import { ReactNode } from "react"
 
+const Icon_Size = 20
 const SIDEBAR_LINKS: {
   name: string
   path: string
+  icon: ReactNode
 }[] = [
   {
     name: "Dashboard",
     path: "/admin/dashboard",
+    icon: <BarChart2 size={Icon_Size} />,
   },
   {
     name: "Spin Wheel",
     path: "/admin/spin-wheel",
+    icon: <LifeBuoy size={Icon_Size} />,
   },
   {
     name: "Products  ",
     path: "/admin/products",
+    icon: <ShoppingBag size={Icon_Size} />,
   },
   {
     name: "Orders",
     path: "/admin/orders",
+    icon: <Table size={Icon_Size} />,
   },
 ]
 
@@ -47,7 +54,7 @@ const Sidebar = () => {
         "w-[248px] h-screen px-4 py-6"
       )}
     >
-      <div className="flex-none w-full flex gap-1 items-center justify-start pb-4 border-b border-gray-800" >
+      <div className="flex-none w-full flex gap-1 items-center justify-start pb-4 border-b border-gray-800">
         <img src={logo.src} alt="Orange Treads Logo" className="w-12 h-12" />
         <h2 className="font-bold">Orange Treads</h2>
       </div>
@@ -57,12 +64,12 @@ const Sidebar = () => {
             href={link?.path}
             key={link?.path}
             className={classNames(
-              "w-full px-4 py-2 rounded-md text-white",
+              "flex items-center gap-2.5 w-full px-4 py-2 rounded-md text-white",
               pathname === link?.path ? "bg-blue-700/30" : "bg-transparent",
               "hover:bg-blue-700/50 hover:text-white"
             )}
           >
-            {link?.name}
+            {link.icon} {link?.name}
           </Link>
         ))}
       </div>
