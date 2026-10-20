@@ -48,10 +48,20 @@ const OrderForm = ({ onClose }: OrderFormProps) => {
     }
   }, [currentOrder?.type])
 
+  useEffect(() => {
+    setUserDetails({
+      customerName: currentOrder?.customerName ?? "",
+      address: currentOrder?.address ?? "",
+      downPayment: currentOrder?.downPayment ?? "",
+    })
+  }, [
+    currentOrder?.customerName,
+    currentOrder?.address,
+    currentOrder?.downPayment,
+  ])
+
   const handleFormChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement
-    >
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const target = e.target
     const field = target.name as keyof CustomerDetails
@@ -110,7 +120,7 @@ const OrderForm = ({ onClose }: OrderFormProps) => {
           if (!newOrder) {
             throw new Error("Failed to add new order")
           }
-          addNewOrder({ ...payload, id: newOrder })
+          addNewOrder({ ...payload, ...newOrder })
           toast.success("Order created successfully", {
             toasterId: "bottom-right",
           })
@@ -131,46 +141,41 @@ const OrderForm = ({ onClose }: OrderFormProps) => {
     <>
       <ProductsModal />
       <Dialog id={MODAL_ID} popover="manual">
-        <div className="dialog-content flex flex-col items-start w-full max-w-2xl h-full lg:min-0 lg:max-h-[94vh] rounded-lg">
+        <div className="dialog-content flex flex-col items-start w-full max-w-2xl min-h-0 max-h-full lg:min-0 lg:max-h-[94vh] rounded-lg">
           <h2 className="flex-none text-xl font-bold text-white px-4 lg:px-6 py-4">
             {currentOrder?.id ? "Edit Order" : "Add Order"}
           </h2>
           <form
             onSubmit={handleOnSubmit}
-            className="flex-1 flex flex-col gap-4 w-full lg:max-h-full px-4 lg:px-6 pb-6 overflow-y-auto"
+            className="flex-1 flex flex-col gap-4 h-auto max-h-full w-full px-4 lg:px-6 pb-6 overflow-y-auto"
           >
-            <div className="flex-none">
-              {/* <b className="text-white text-base leading-none">
-                Shipping Details:
-              </b> */}
-              <div className="grid lg:grid-cols-2 gap-2 lg:gap-7 mt-2">
-                <TextField
-                  label="Customer Name"
-                  name="customerName"
-                  value={userDetails.customerName}
-                  onChange={handleFormChange}
-                  required
-                />
-                <TextField
-                  label="Down Payment"
-                  type="number"
-                  name="downPayment"
-                  value={userDetails.downPayment}
-                  onChange={handleFormChange}
-                  required
-                />
-                <TextArea
-                  label="Delivery Address"
-                  name="address"
-                  value={userDetails.address}
-                  onChange={handleFormChange}
-                  className="min-h-5! text-gray-300"
-                  required
-                />
-              </div>
+            <div className="grid lg:grid-cols-2 gap-2 lg:gap-7 mt-2">
+              <TextField
+                label="Customer Name"
+                name="customerName"
+                value={userDetails.customerName}
+                onChange={handleFormChange}
+                required
+              />
+              <TextField
+                label="Down Payment"
+                type="number"
+                name="downPayment"
+                value={userDetails.downPayment}
+                onChange={handleFormChange}
+                required
+              />
+              <TextArea
+                label="Delivery Address"
+                name="address"
+                value={userDetails.address}
+                onChange={handleFormChange}
+                className="min-h-5! text-gray-300"
+                required
+              />
             </div>
             <hr className="flex-none border-t border-gray-700/70 mt-2" />
-            <div className="flex-none flex items-center justify-between">
+            <div className="flex items-center justify-between">
               <b className="text-white text-base leading-none">
                 Order Details:
               </b>
@@ -185,20 +190,18 @@ const OrderForm = ({ onClose }: OrderFormProps) => {
                 Add Product
               </Button>
             </div>
-            <div className="lg:flex-1 lg:min-h-full w-full lg:overflow-y-scroll">
-              <OrderItemsTable items={currentOrder?.orderItems ?? []} />
-            </div>
+            <OrderItemsTable items={currentOrder?.orderItems ?? []} />
             <div className="flex-none flex gap-3 mt-4">
               <Button
                 type="button"
                 variant="secondary"
-                size="large"
+                size="xl"
                 fullWidth
                 onClick={handleClose}
               >
                 Cancel
               </Button>
-              <Button type="submit" size="large" fullWidth disabled={isSaving}>
+              <Button type="submit" size="xl" fullWidth disabled={isSaving}>
                 {isSaving ? (
                   <>
                     <LoadingSpinner className="w-4 h-4 text-white animate-spin" />{" "}
