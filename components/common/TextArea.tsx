@@ -18,7 +18,7 @@ const TextArea = ({
     <div
       className={classNames("flex flex-col gap-1 w-full", containerClassName)}
     >
-      {label && <label className="text-sm text-gray-400">{label}</label>}
+      {label && <label className="flex-none text-sm text-gray-400">{label}</label>}
       <textarea
         {...props}
         className={classNames(
