@@ -7,18 +7,20 @@ import ConfirmationModal from "../common/ConfirmationModal"
 import { ordersFirebase } from "@/firebase/firebase-orders"
 import { toast } from "sonner"
 import { TableBodySkeleton } from "../common/TableSkeleton"
+import { money } from "@/utils/currency"
 
 interface FieldConfig {
   label: string
   keyName: keyof Order
+  type: "number" | "string"
 }
 
 const COMMON_FIELDS: FieldConfig[] = [
-  { label: "Name", keyName: "customerName" },
-  { label: "Total", keyName: "total" },
-  { label: "Down Payment", keyName: "downPayment" },
-  { label: "Discount", keyName: "discount" },
-  { label: "Profit", keyName: "profit" },
+  { label: "Name", keyName: "customerName", type: "string" },
+  { label: "Total", keyName: "total", type: "number" },
+  { label: "Down Payment", keyName: "downPayment", type: "number" },
+  { label: "Discount", keyName: "discount", type: "number" },
+  { label: "Profit", keyName: "profit", type: "number" },
 ]
 
 const COMMON_FIELDS_COUNT = COMMON_FIELDS.length + 1
@@ -50,12 +52,9 @@ const OrderList = () => {
         toasterId: "bottom-right",
       })
     } catch (error) {
-      toast.success(
-        `Failed to delete the order ${currentOrder.customerName}`,
-        {
-          toasterId: "bottom-right",
-        }
-      )
+      toast.success(`Failed to delete the order ${currentOrder.customerName}`, {
+        toasterId: "bottom-right",
+      })
     }
   }
 
@@ -91,9 +90,7 @@ const OrderList = () => {
           {isLoading ? (
             <TableBodySkeleton rows={3} columns={COMMON_FIELDS_COUNT} />
           ) : (
-            orders.map((order) => (
-              <OrderRow key={order.id} order={order} />
-            ))
+            orders.map((order) => <OrderRow key={order.id} order={order} />)
           )}
         </tbody>
       </table>
@@ -111,7 +108,9 @@ const OrderRow = ({ order }: { order: Order }) => {
           key={field.keyName + " " + index}
           className="border border-gray-600 p-2 text-gray-300"
         >
-          {String(order[field.keyName] ?? "")}
+          {field.type === "string"
+            ? String(order[field.keyName] ?? "")
+            : money(Number(order[field.keyName] ?? 0))}
         </td>
       ))}
       <td className="flex items-center border border-gray-600 p-2">
