@@ -13,6 +13,7 @@ import ProductsModal from "./ProductsModal"
 import { Plus } from "react-feather"
 import OrderItemsTable from "./OrderItemsTable"
 import { OrderAction } from "@/stores/slices/orders-slice"
+import { money } from "@/utils/currency"
 
 interface OrderFormProps {
   onClose?: () => void
@@ -147,32 +148,37 @@ const OrderForm = ({ onClose }: OrderFormProps) => {
           </h2>
           <form
             onSubmit={handleOnSubmit}
-            className="flex-1 flex flex-col gap-4 h-auto max-h-full w-full px-4 lg:px-6 pb-6 overflow-y-auto"
+            className="relative flex-1 flex flex-col gap-4 h-auto max-h-full w-full px-4 lg:px-6 overflow-y-auto"
           >
-            <div className="grid lg:grid-cols-2 gap-2 lg:gap-7 mt-2">
-              <TextField
-                label="Customer Name"
-                name="customerName"
-                value={userDetails.customerName}
-                onChange={handleFormChange}
-                required
-              />
-              <TextField
-                label="Down Payment"
-                type="number"
-                name="downPayment"
-                value={userDetails.downPayment}
-                onChange={handleFormChange}
-                required
-              />
-              <TextArea
-                label="Delivery Address"
-                name="address"
-                value={userDetails.address}
-                onChange={handleFormChange}
-                className="min-h-5! text-gray-300"
-                required
-              />
+            <div className="flex items-stretch justify-between gap-2 lg:gap-7 mt-2">
+              <div className="flex-1 flex flex-col gap-2">
+                <TextField
+                  label="Customer Name"
+                  name="customerName"
+                  value={userDetails.customerName}
+                  onChange={handleFormChange}
+                  required
+                />
+                <TextField
+                  label="Down Payment"
+                  type="number"
+                  name="downPayment"
+                  value={userDetails.downPayment}
+                  onChange={handleFormChange}
+                  required
+                />
+              </div>
+              <div className="flex-1 min-h-full">
+                <TextArea
+                  label="Delivery Address"
+                  name="address"
+                  value={userDetails.address}
+                  onChange={handleFormChange}
+                  className="flex-1 text-gray-300"
+                  containerClassName="h-full"
+                  required
+                />
+              </div>
             </div>
             <hr className="flex-none border-t border-gray-700/70 mt-2" />
             <div className="flex items-center justify-between">
@@ -191,28 +197,47 @@ const OrderForm = ({ onClose }: OrderFormProps) => {
               </Button>
             </div>
             <OrderItemsTable items={currentOrder?.orderItems ?? []} />
-            <div className="flex-none flex gap-3 mt-4">
-              <Button
-                type="button"
-                variant="secondary"
-                size="xl"
-                fullWidth
-                onClick={handleClose}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" size="xl" fullWidth disabled={isSaving}>
-                {isSaving ? (
-                  <>
-                    <LoadingSpinner className="w-4 h-4 text-white animate-spin" />{" "}
-                    Saving...
-                  </>
-                ) : currentOrder?.id ? (
-                  "Save Changes"
-                ) : (
-                  "Create Order"
-                )}
-              </Button>
+            <div className="sticky bottom-0 left-0 flex-none flex flex-col gap-3 py-3 bg-[#212122]">
+              <div className="flex items-center justify-end gap-2">
+                <span className="block text-base text-white font-bold">
+                  Order Total: {money(currentOrder?.total ?? 0)}
+                </span>
+                <div className="w-1.5 h-1.5 bg-gray-700 rounded-full overflow-hidden" />
+                <span className="block text-base text-white font-bold">
+                  Balance:{" "}
+                  {money(
+                    Number(currentOrder?.total ?? 0) -
+                      Number(currentOrder?.downPayment ?? 0)
+                  )}
+                </span>
+                <div className="w-1.5 h-1.5 bg-gray-700 rounded-full overflow-hidden" />
+                <span className="block text-base text-green-600 font-bold">
+                  Total Profit: {money(currentOrder?.profit ?? 0)}
+                </span>
+              </div>
+              <div className="flex-none flex gap-3">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="xl"
+                  fullWidth
+                  onClick={handleClose}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" size="xl" fullWidth disabled={isSaving}>
+                  {isSaving ? (
+                    <>
+                      <LoadingSpinner className="w-4 h-4 text-white animate-spin" />{" "}
+                      Saving...
+                    </>
+                  ) : currentOrder?.id ? (
+                    "Save Changes"
+                  ) : (
+                    "Create Order"
+                  )}
+                </Button>
+              </div>
             </div>
           </form>
         </div>
