@@ -61,6 +61,8 @@ export const createOrdersSlice = (set: any): OrdersSlice => ({
       currentOrder: {
         ...state?.currentOrder,
         orderItems: [...(state?.currentOrder?.orderItems ?? []), item],
+        total: (state.currentOrder?.total ?? 0) + item.total,
+        profit: (state.currentOrder?.profit ?? 0) + item.profit
       },
     })),
   updateOrderitem: (item) =>
