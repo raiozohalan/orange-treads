@@ -1,13 +1,13 @@
 import { useAppStore } from "@/providers/app-store-provider"
 import { Order } from "@/types/orders"
 import { Button } from "../common"
-import { Edit, Trash } from "react-feather"
-import { OrderAction } from "@/stores/slices/orders-slice"
+import { CreditCard, Edit, Trash } from "react-feather"
 import ConfirmationModal from "../common/ConfirmationModal"
 import { ordersFirebase } from "@/firebase/firebase-orders"
 import { toast } from "sonner"
 import { TableBodySkeleton } from "../common/TableSkeleton"
 import { money } from "@/utils/currency"
+import { FormAction } from "@/types/common"
 
 interface FieldConfig {
   label: string
@@ -62,7 +62,7 @@ const OrderList = () => {
     <>
       <ConfirmationModal
         id="delete-order"
-        open={currentOrder?.type === OrderAction.Delete}
+        open={currentOrder?.type === FormAction.Delete}
         title={`Delete ${currentOrder?.customerName}`}
         content={
           <>
@@ -121,7 +121,7 @@ const OrderRow = ({ order }: { order: Order }) => {
           onClick={() => {
             setCurrentOrder({
               ...order,
-              type: OrderAction.Update,
+              type: FormAction.Update,
             })
           }}
         >
@@ -134,11 +134,24 @@ const OrderRow = ({ order }: { order: Order }) => {
           onClick={() => {
             setCurrentOrder({
               ...order,
-              type: OrderAction.Delete,
+              type: FormAction.Delete,
             })
           }}
         >
           <Trash size={14} />
+        </Button>
+        <Button
+          variant="secondary"
+          size="small"
+          className="px-1 py-1.5 bg-transparent"
+          onClick={() => {
+            setCurrentOrder({
+              ...order,
+              type: FormAction.Payment,
+            })
+          }}
+        >
+          <CreditCard size={14} />
         </Button>
       </td>
     </tr>

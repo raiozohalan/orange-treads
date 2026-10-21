@@ -12,8 +12,8 @@ import { ordersFirebase } from "@/firebase/firebase-orders"
 import ProductsModal from "./ProductsModal"
 import { Plus } from "react-feather"
 import OrderItemsTable from "./OrderItemsTable"
-import { OrderAction } from "@/stores/slices/orders-slice"
 import { money } from "@/utils/currency"
+import { FormAction } from "@/types/common"
 
 interface OrderFormProps {
   onClose?: () => void
@@ -43,7 +43,7 @@ const OrderForm = ({ onClose }: OrderFormProps) => {
   useEffect(() => {
     if (
       currentOrder &&
-      [OrderAction.Create, OrderAction.Update].includes(currentOrder.type)
+      [FormAction.Create, FormAction.Update].includes(currentOrder.type)
     ) {
       dialogActions.open()
     }
