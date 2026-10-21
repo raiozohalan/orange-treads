@@ -8,12 +8,12 @@ import {
   ShoesProduct,
   WatchProduct,
 } from "@/types/products"
-import { ProductAction } from "@/stores/slices/products-slice"
 import ShoesForm from "./ShoesForm"
 import PerfumeForm from "./PerfumeForm"
 import WatchForm from "./WatchForm"
 import getDialogActions from "@/utils/dialog"
 import ProductsFilter from "./ProductsFilter"
+import { FormAction } from "@/types/common"
 
 const Add_Product_Options: MenuItem[] = [
   {
@@ -37,7 +37,7 @@ const PageHeader = () => {
     (type: ProductType) => {
       if (
         currentProduct?.id &&
-        currentProduct?.actionType === ProductAction.Update &&
+        currentProduct?.actionType === FormAction.Update &&
         currentProduct?.type === type
       ) {
         // Note: removed the actionType to the data so that it will not included on saving a product

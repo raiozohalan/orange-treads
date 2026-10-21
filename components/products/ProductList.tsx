@@ -2,11 +2,11 @@ import { useAppStore } from "@/providers/app-store-provider"
 import { Product } from "@/types/products"
 import { Button } from "../common"
 import { Edit, Trash } from "react-feather"
-import { ProductAction } from "@/stores/slices/products-slice"
 import ConfirmationModal from "../common/ConfirmationModal"
 import productsFirebase from "@/firebase/firebase-products"
 import { toast } from "sonner"
 import { TableBodySkeleton } from "../common/TableSkeleton"
+import { FormAction } from "@/types/common"
 
 interface FieldConfig {
   label: string
@@ -59,7 +59,7 @@ const ProductList = () => {
     <>
       <ConfirmationModal
         id="delete-product"
-        open={currentProduct?.actionType === ProductAction.Delete}
+        open={currentProduct?.actionType === FormAction.Delete}
         title={`Delete ${currentProduct?.name}`}
         content={
           <>
@@ -118,7 +118,7 @@ const ProductRow = ({ product }: { product: Product }) => {
           onClick={() => {
             setCurrentProduct({
               ...product,
-              actionType: ProductAction.Update,
+              actionType: FormAction.Update,
             })
           }}
         >
@@ -131,7 +131,7 @@ const ProductRow = ({ product }: { product: Product }) => {
           onClick={() => {
             setCurrentProduct({
               ...product,
-              actionType: ProductAction.Delete,
+              actionType: FormAction.Delete,
             })
           }}
         >
