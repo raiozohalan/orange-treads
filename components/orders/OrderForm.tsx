@@ -25,12 +25,27 @@ type OrderTotals = Pick<Order, "discount" | "profit" | "total">
 const INITIAL_DATA: CustomerDetails = {
   customerName: "",
   address: "",
-  downPayment: "",
+  downPayment: 0,
 }
 
 const MODAL_ID = "order-form"
 const dialogActions = getDialogActions(MODAL_ID)
 const productDialogActions = getDialogActions("order-product-table")
+
+const getUpdatedBalance = (
+  olddata: Order,
+  newData: CustomerDetails
+): number => {
+  let newBalance = olddata.balance
+  if (olddata.downPayment !== newData.downPayment) {
+    if (newData.downPayment > olddata.downPayment) {
+      newBalance -= Math.abs(newData.downPayment - olddata.downPayment)
+    } else {
+      newBalance += Math.abs(newData.downPayment - olddata.downPayment)
+    }
+  }
+  return newBalance
+}
 
 const OrderForm = ({ onClose }: OrderFormProps) => {
   const currentOrder = useAppStore((state) => state.currentOrder)
@@ -53,7 +68,7 @@ const OrderForm = ({ onClose }: OrderFormProps) => {
     setUserDetails({
       customerName: currentOrder?.customerName ?? "",
       address: currentOrder?.address ?? "",
-      downPayment: currentOrder?.downPayment ?? "",
+      downPayment: currentOrder?.downPayment ?? 0,
     })
   }, [
     currentOrder?.customerName,
@@ -100,11 +115,15 @@ const OrderForm = ({ onClose }: OrderFormProps) => {
             defaultTotals
           ) ?? defaultTotals
 
-        const { type, ...resCurrentOrder } = currentOrder
+        const balance = getUpdatedBalance(currentOrder, userDetails)
+
+        // Don't include the paymentHistory it will have separate form for it
+        const { type, paymentHistory, ...resCurrentOrder } = currentOrder
         const payload: Order = {
           ...resCurrentOrder,
           ...userDetails,
           ...orderAdditonalDetails,
+          balance,
         }
 
         if (currentOrder?.id) {
@@ -163,7 +182,7 @@ const OrderForm = ({ onClose }: OrderFormProps) => {
                   label="Down Payment"
                   type="number"
                   name="downPayment"
-                  value={userDetails.downPayment}
+                  value={userDetails.downPayment || 0}
                   onChange={handleFormChange}
                   required
                 />
