@@ -82,6 +82,9 @@ const OrderList = () => {
               </th>
             ))}
             <th className="border border-gray-600 p-2 text-left w-11">
+              Balance
+            </th>
+            <th className="border border-gray-600 p-2 text-left w-11">
               Actions
             </th>
           </tr>
@@ -100,6 +103,7 @@ const OrderList = () => {
 
 const OrderRow = ({ order }: { order: Order }) => {
   const setCurrentOrder = useAppStore((state) => state.setCurrentOrder)
+  const setPayment = useAppStore((state) => state.setPayment)
 
   return (
     <tr key={order.id}>
@@ -113,6 +117,9 @@ const OrderRow = ({ order }: { order: Order }) => {
             : money(Number(order[field.keyName] ?? 0))}
         </td>
       ))}
+      <td key="balance" className="border border-gray-600 p-2 text-gray-300">
+        {money(Number(order.balance ?? 0))}
+      </td>
       <td className="flex items-center border border-gray-600 p-2">
         <Button
           variant="secondary"
@@ -145,9 +152,9 @@ const OrderRow = ({ order }: { order: Order }) => {
           size="small"
           className="px-1 py-1.5 bg-transparent"
           onClick={() => {
-            setCurrentOrder({
-              ...order,
-              type: FormAction.Payment,
+            setPayment({
+              orderId: order.id,
+              type: FormAction.Create,
             })
           }}
         >
