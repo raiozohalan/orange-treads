@@ -288,6 +288,7 @@ const searchItems = async (
 }
 
 const firebaseFunctions = {
+  db,
   addItem,
   getItem,
   getItems,

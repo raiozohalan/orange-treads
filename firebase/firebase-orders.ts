@@ -3,7 +3,7 @@
 import firebaseFunctions from "./firebase-functions"
 import { Order, OrderWithAuditFields } from "@/types/orders"
 
-const ORDERS_COLLECTION = "orders_table"
+export const ORDERS_COLLECTION = "orders_table"
 
 /**
  * Fetch all orders.

@@ -1,5 +1,10 @@
 import { FormAction } from "@/types/common"
-import { Order, OrderItems, OrderWithAuditFields } from "@/types/orders"
+import {
+  Order,
+  OrderItems,
+  OrderPayment,
+  OrderWithAuditFields,
+} from "@/types/orders"
 import { Product } from "@/types/products"
 
 interface OrderForm extends Order {
@@ -7,6 +12,8 @@ interface OrderForm extends Order {
   dateCreated?: Date
   dateUpdated?: Date
 }
+
+type PaymentForm = OrderPayment & { type: FormAction; orderId: string }
 
 export interface OrdersSlice {
   orders: OrderWithAuditFields[]
@@ -25,6 +32,10 @@ export interface OrdersSlice {
   setFetchingOrderProducts: (isLoading: boolean) => void
   orderProducts: Product[]
   setOrderProducts: (orderProducts: Product[]) => void
+
+  // Payments
+  payment: PaymentForm | null
+  setPayment: (payment: Partial<PaymentForm> | null) => void
 }
 
 export const initialOrdersSlice: OrdersSlice = {
@@ -42,6 +53,8 @@ export const initialOrdersSlice: OrdersSlice = {
   setFetchingOrderProducts: () => {},
   orderProducts: [],
   setOrderProducts: () => {},
+  payment: null,
+  setPayment: () => {},
 }
 
 export const createOrdersSlice = (set: any): OrdersSlice => ({
@@ -57,12 +70,11 @@ export const createOrdersSlice = (set: any): OrdersSlice => ({
         ...state?.currentOrder,
         orderItems: [...(state?.currentOrder?.orderItems ?? []), item],
         total: (state.currentOrder?.total ?? 0) + item.total,
-        profit: (state.currentOrder?.profit ?? 0) + item.profit
+        profit: (state.currentOrder?.profit ?? 0) + item.profit,
       },
     })),
   updateOrderitem: (item) =>
     set((state: OrdersSlice) => {
-      console.log("====>updateOrderitem", { item, state })
       return {
         currentOrder: {
           ...state?.currentOrder,
@@ -101,4 +113,7 @@ export const createOrdersSlice = (set: any): OrdersSlice => ({
     set({ isFetchingOrderProducts: isLoading }),
   orderProducts: [],
   setOrderProducts: (orderProducts) => set({ orderProducts }),
+
+  payment: null,
+  setPayment: (payment) => set({ payment }),
 })
