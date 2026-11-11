@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/common"
-import OrderForm from "@/components/orders/OrderForm"
+import AddOrderFormModal from "@/components/orders/AddOrderFormModal"
 import { useAppStore } from "@/providers/app-store-provider"
 import { Plus, Table } from "react-feather"
 import OrderList from "@/components/orders/OrderList"
@@ -16,6 +16,7 @@ const Page = () => {
 
   useEffect(() => {
     const fetchOrders = async () => {
+      setCurrentOrder(null)
       const res = await ordersFirebase.getOrders()
       setOrders(res ?? [])
     }
@@ -25,10 +26,10 @@ const Page = () => {
 
   return (
     <>
-      <OrderForm />
+      <AddOrderFormModal />
       <AddPaymentForm />
-      <div className="h-full min-h-0 flex flex-col items-stretch justify-between px-6 pt-8 overflow-hidden">
-        <div className="flex-none flex items-center h-12 font-bold">
+      <div className="h-full min-h-0 flex flex-col items-stretch justify-start px-6 overflow-scroll bg-inherit">
+        <div className="sticky top-0 left-0 flex-none flex items-center h-12 pt-15 pb-7 font-bold bg-inherit border-b border-gray-800">
           <div className="flex-1 flex items-center gap-2 leading-none text-gray-400 text-2xl">
             <Table size={24} /> Orders
           </div>
@@ -41,8 +42,7 @@ const Page = () => {
             <Plus className="w-4 h-4" /> Create Order
           </Button>
         </div>
-        <hr className="flex-none mt-1 mb-7 border-gray-800" />
-        <div className="flex-1 min-h-0 flex items-stretch justify-between gap-10 w-full">
+        <div className="flex justify-between gap-10 w-full py-8">
           <OrderList />
         </div>
       </div>
