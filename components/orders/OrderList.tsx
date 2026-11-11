@@ -1,13 +1,16 @@
 import { useAppStore } from "@/providers/app-store-provider"
 import { Order } from "@/types/orders"
 import { Button } from "../common"
-import { CreditCard, Edit, Trash } from "react-feather"
+import { ChevronsRight, CreditCard, Trash } from "react-feather"
 import ConfirmationModal from "../common/ConfirmationModal"
 import { ordersFirebase } from "@/firebase/firebase-orders"
 import { toast } from "sonner"
 import { TableBodySkeleton } from "../common/TableSkeleton"
 import { money } from "@/utils/currency"
 import { FormAction } from "@/types/common"
+import Link from "next/link"
+import classNames from "@/utils/classNames"
+import { buttonVariants } from "../common/Button"
 
 interface FieldConfig {
   label: string
@@ -124,20 +127,7 @@ const OrderRow = ({ order }: { order: Order }) => {
         <Button
           variant="secondary"
           size="small"
-          className="px-1 py-1.5 bg-transparent"
-          onClick={() => {
-            setCurrentOrder({
-              ...order,
-              type: FormAction.Update,
-            })
-          }}
-        >
-          <Edit size={14} />
-        </Button>
-        <Button
-          variant="secondary"
-          size="small"
-          className="px-1 py-1.5 bg-transparent"
+          className="px-1 py-1.5 bg-transparent aspect-square"
           onClick={() => {
             setCurrentOrder({
               ...order,
@@ -150,7 +140,7 @@ const OrderRow = ({ order }: { order: Order }) => {
         <Button
           variant="secondary"
           size="small"
-          className="px-1 py-1.5 bg-transparent"
+          className="px-1 py-1.5 bg-transparent aspect-square"
           onClick={() => {
             setPayment({
               orderId: order.id,
@@ -160,6 +150,15 @@ const OrderRow = ({ order }: { order: Order }) => {
         >
           <CreditCard size={14} />
         </Button>
+        <Link
+          href={`/admin/orders/${order.id}`}
+          className={classNames(
+            buttonVariants.secondary,
+            "flex items-center justify-center w-[30px] bg-transparent rounded-sm aspect-square"
+          )}
+        >
+          <ChevronsRight size={20} />
+        </Link>
       </td>
     </tr>
   )
