@@ -81,12 +81,25 @@ export const createOrdersSlice = (set: any): OrdersSlice => ({
     })),
   updateOrderitem: (item) =>
     set((state: OrdersSlice) => {
+      let defaultTotals = {
+        total: state.currentOrder?.total ?? 0,
+        profit: state.currentOrder?.profit ?? 0,
+        discount: state.currentOrder?.discount ?? 0,
+      }
+      const orderItems = state?.currentOrder?.orderItems?.map((d) => {
+        if (d.id === item.id) {
+          defaultTotals.total += (item?.total ?? 0) - d.total
+          defaultTotals.profit += (item?.profit ?? 0) - d.profit
+          defaultTotals.discount += (item?.discount ?? 0) - d.discount
+          return { ...d, ...item }
+        }
+        return d
+      })
       return {
         currentOrder: {
           ...state?.currentOrder,
-          orderItems: state?.currentOrder?.orderItems?.map((d) =>
-            d.id === item.id ? { ...d, ...item } : d
-          ),
+          orderItems,
+          ...defaultTotals,
         },
       }
     }),
