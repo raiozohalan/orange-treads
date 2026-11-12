@@ -12,14 +12,6 @@ import ConfirmationModal from "../common/ConfirmationModal"
 
 type EditableFields = Pick<OrderItems, "status" | "trackingNo" | "discount">
 
-interface OrderItemsTableProps {
-  items: OrderItems[]
-  currency?: string
-  onAction?: (item: OrderItems) => void
-  /** Called only when the user clicks Save for a row. Persist the returned item in the parent. */
-  onSave?: (item: OrderItems) => void | Promise<void>
-}
-
 const inputClass =
   "w-full min-w-28 rounded-md border-[1px] border-gray-600 bg-gray-800 px-2 py-1.5 text-sm text-gray-100 outline-none focus:border-blue-500"
 
@@ -57,7 +49,8 @@ const renderProductDetails = (item: OrderItems): ReactNode => {
   }
 }
 
-const OrderItemsTable = ({ items }: OrderItemsTableProps) => {
+const OrderItemsTable = () => {
+  const items = useAppStore((state) => state.currentOrder?.orderItems)
   const deleteOrderitem = useAppStore((state) => state.deleteOrderitem)
   const [deleteItem, setDeleteItem] = useState<OrderItems | null>(null)
 
@@ -84,8 +77,8 @@ const OrderItemsTable = ({ items }: OrderItemsTableProps) => {
         onCancel={() => setDeleteItem(null)}
       />
       <div className="w-full min-w-0 space-y-3">
-        {items.length ? (
-          items.map((item) => (
+        {items?.length ? (
+          items?.map((item) => (
             <OrderItem key={item.id} item={item} onRemove={setDeleteItem} />
           ))
         ) : (
