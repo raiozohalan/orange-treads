@@ -25,16 +25,13 @@ const INITIAL_DATA: CustomerDetails = {
 
 const productDialogActions = getDialogActions("order-product-table")
 
-const getUpdatedBalance = (
-  olddata: Order,
-  newData: CustomerDetails
-): number => {
+const getUpdatedBalance = (olddata: Order, downPayment: number): number => {
   let newBalance = olddata.balance
-  if (olddata.downPayment !== newData.downPayment) {
-    if (newData.downPayment > olddata.downPayment) {
-      newBalance -= Math.abs(newData.downPayment - olddata.downPayment)
+  if (olddata.downPayment !== downPayment) {
+    if (downPayment > olddata.downPayment) {
+      newBalance -= Math.abs(downPayment - olddata.downPayment)
     } else {
-      newBalance += Math.abs(newData.downPayment - olddata.downPayment)
+      newBalance += Math.abs(downPayment - olddata.downPayment)
     }
   }
   return newBalance
@@ -117,7 +114,7 @@ const OrderForm = ({ orderId }: { orderId?: string }) => {
             defaultTotals
           ) ?? defaultTotals
 
-        const balance = getUpdatedBalance(currentOrder, userDetails)
+        const balance = getUpdatedBalance(currentOrder, userDetails.downPayment)
 
         // Don't include the paymentHistory it will have separate form for it
         const { type, paymentHistory, ...resCurrentOrder } = currentOrder
@@ -163,8 +160,8 @@ const OrderForm = ({ orderId }: { orderId?: string }) => {
     <form
       onSubmit={handleOnSubmit}
       className={classNames(
-        "relative flex-1 flex flex-col gap-4  w-full px-4 lg:px-6",
-        isUpdateMode ? "h-fit" : "h-auto max-h-full overflow-y-auto"
+        "relative flex-1 flex flex-col gap-4 w-full",
+        isUpdateMode ? "h-fit" : "h-auto max-h-full overflow-y-auto px-4 lg:px-6"
       )}
     >
       <div className="flex items-stretch justify-between gap-2 lg:gap-7 mt-2">
@@ -199,7 +196,7 @@ const OrderForm = ({ orderId }: { orderId?: string }) => {
       </div>
       <hr className="flex-none border-t border-gray-700/70 mt-2" />
       <div className="flex items-center justify-between">
-        <b className="text-white text-base leading-none">Order Details:</b>
+        <b className="text-white text-base leading-none">Orders:</b>
         <Button
           type="button"
           variant="primary"
@@ -211,7 +208,7 @@ const OrderForm = ({ orderId }: { orderId?: string }) => {
           Add Product
         </Button>
       </div>
-      <OrderItemsTable items={currentOrder?.orderItems ?? []} />
+      <OrderItemsTable />
       <div
         className={classNames(
           "flex-none flex flex-col gap-3 py-3 ",
