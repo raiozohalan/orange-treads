@@ -1,21 +1,14 @@
 "use client"
 
-import { useAppStore } from "@/providers/app-store-provider"
 import { useEffect } from "react"
-import productsFirebase from "@/firebase/firebase-products"
 import ProductList from "@/components/products/ProductList"
 import PageHeader from "@/components/products/PageHeader"
+import useSearchProducts from "@/hooks/useSearchProducts"
 
 const Page = () => {
-  const setProducts = useAppStore((state) => state.setProducts)
-
+  const { onSearchProducts } = useSearchProducts({ state: "products" })
   useEffect(() => {
-    const fetchProducts = async () => {
-      const res = await productsFirebase.getProducts()
-      setProducts(res ?? [])
-    }
-
-    fetchProducts()
+    onSearchProducts(true)
   }, [])
 
   return (
