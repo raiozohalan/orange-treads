@@ -13,14 +13,19 @@ import { FormAction } from "@/types/common"
 const Page = () => {
   const setOrders = useAppStore((state) => state.setOrders)
   const setCurrentOrder = useAppStore((state) => state.setCurrentOrder)
+  const setFetchingOrders = useAppStore((state) => state.setFetchingOrders)
 
   useEffect(() => {
     const fetchOrders = async () => {
-      setCurrentOrder(null)
-      const res = await ordersFirebase.getOrders()
-      setOrders(res ?? [])
+      try {
+        setFetchingOrders(true)
+        setCurrentOrder(null)
+        const res = await ordersFirebase.getOrders()
+        setOrders(res ?? [])
+      } finally {
+        setFetchingOrders(false)
+      }
     }
-
     fetchOrders()
   }, [])
 

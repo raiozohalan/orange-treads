@@ -26,14 +26,14 @@ const COMMON_FIELDS: FieldConfig[] = [
   { label: "Profit", keyName: "profit", type: "number" },
 ]
 
-const COMMON_FIELDS_COUNT = COMMON_FIELDS.length + 1
+const COMMON_FIELDS_COUNT = COMMON_FIELDS.length + 2
 
 const OrderList = () => {
   const orders = useAppStore((state) => state.orders)
   const setOrders = useAppStore((state) => state.setOrders)
   const currentOrder = useAppStore((state) => state.currentOrder)
   const setCurrentOrder = useAppStore((state) => state.setCurrentOrder)
-  const isLoading = useAppStore((state) => state.isFetchingProducts)
+  const isLoading = useAppStore((state) => state.isFetchingOrders)
 
   if (orders.length === 0) {
     return (

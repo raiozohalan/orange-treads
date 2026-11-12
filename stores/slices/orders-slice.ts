@@ -16,6 +16,8 @@ interface OrderForm extends Order {
 type PaymentForm = OrderPayment & { type: FormAction; orderId: string }
 
 export interface OrdersSlice {
+  isFetchingOrders: boolean
+  setFetchingOrders: (isLoading: boolean) => void
   orders: OrderWithAuditFields[]
   setOrders: (orders: OrderWithAuditFields[]) => void
   addNewOrder: (orders: OrderWithAuditFields) => void
@@ -39,6 +41,8 @@ export interface OrdersSlice {
 }
 
 export const initialOrdersSlice: OrdersSlice = {
+  isFetchingOrders: false,
+  setFetchingOrders: () => {},
   orders: [],
   setOrders: () => {},
   addNewOrder: () => {},
@@ -58,6 +62,8 @@ export const initialOrdersSlice: OrdersSlice = {
 }
 
 export const createOrdersSlice = (set: any): OrdersSlice => ({
+  isFetchingOrders: false,
+  setFetchingOrders: (isLoading) => set({ isFetchingOrders: isLoading }),
   orders: [],
   setOrders: (orders) => set({ orders }),
   addNewOrder: (newOrder: OrderWithAuditFields) =>
