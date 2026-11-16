@@ -54,6 +54,8 @@ interface BasePayment {
   amount: number
   date: Date
   note?: string
+  dateCreated?: Date
+  dateUpdated?: Date
 }
 
 export interface CashPayment extends BasePayment {

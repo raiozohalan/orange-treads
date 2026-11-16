@@ -20,14 +20,13 @@ const getOrders = async (): Promise<OrderWithAuditFields[] | null> => {
 
 /**
  * Fetch a single order by its Firestore document ID.
- * @param prizeId - ID of the order document in the orders collection
+ * @param itemId - ID of the order document in the orders collection
  */
-const getOrderById = async (prizeId: string): Promise<Order | null> => {
-  const items = await firebaseFunctions.getItem(ORDERS_COLLECTION, prizeId)
+const getOrderById = async (itemId: string): Promise<Order | null> => {
+  const items = await firebaseFunctions.getItem(ORDERS_COLLECTION, itemId)
+  if (!items || Object.keys(items).length === 0) return null
 
-  if (!items) return null
-
-  return items as Order
+  return { id: itemId, ...items } as Order
 }
 
 // ---------------------------------------------------------------------------

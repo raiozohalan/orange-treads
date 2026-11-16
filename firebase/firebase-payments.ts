@@ -32,7 +32,14 @@ const addPayment = async (
     if (!snap.exists()) throw new Error("Order not found")
 
     const order = snap.data() as Order
-    const paymentHistory = [...(order.paymentHistory ?? []), payment]
+    const paymentHistory = [
+      ...(order.paymentHistory ?? []),
+      {
+        ...payment,
+        dateCreated: new Date(),
+        dateUpdated: new Date(),
+      },
+    ]
     const balance = computeBalance(order, paymentHistory)
 
     tx.update(ref, { paymentHistory, balance, dateUpdated: new Date() })
@@ -62,7 +69,12 @@ const updatePayment = async (
 
     // replace the whole item, so fields from the old method don't linger
     const paymentHistory = current.map((p) =>
-      p.id === payment.id ? payment : p
+      p.id === payment.id
+        ? {
+            ...payment,
+            dateUpdated: new Date(),
+          }
+        : p
     )
     const balance = computeBalance(order, paymentHistory)
 
