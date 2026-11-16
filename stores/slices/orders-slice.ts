@@ -25,7 +25,7 @@ export interface OrdersSlice {
   setCurrentOrder: (order: OrderForm | null) => void
   addOrderitem: (order: OrderItems) => void
   updateOrderitem: (order: Partial<OrderItems>) => void
-  deleteOrderitem: (orderId: string) => void
+  deleteOrderitem: (orderId: OrderItems) => void
   updateOrder: (updatedOrder: Partial<Order>) => void
   deleteOrder: (orderId: string) => void
 
@@ -74,23 +74,24 @@ export const createOrdersSlice = (set: any): OrdersSlice => ({
     set((state: OrdersSlice) => ({
       currentOrder: {
         ...state?.currentOrder,
-        orderItems: [...(state?.currentOrder?.orderItems ?? []), item],
-        total: (state.currentOrder?.total ?? 0) + item.total,
-        profit: (state.currentOrder?.profit ?? 0) + item.profit,
+        orderItems: [...(state?.currentOrder?.orderItems || []), item],
+        total: Number(state.currentOrder?.total || 0) + item.total,
+        balance: Number(state.currentOrder?.balance || 0) + Number(item.total),
+        profit: Number(state.currentOrder?.profit || 0) + item.profit,
       },
     })),
   updateOrderitem: (item) =>
     set((state: OrdersSlice) => {
       let defaultTotals = {
-        total: state.currentOrder?.total ?? 0,
-        profit: state.currentOrder?.profit ?? 0,
-        discount: state.currentOrder?.discount ?? 0,
+        total: state.currentOrder?.total || 0,
+        profit: state.currentOrder?.profit || 0,
+        discount: state.currentOrder?.discount || 0,
       }
       const orderItems = state?.currentOrder?.orderItems?.map((d) => {
         if (d.id === item.id) {
-          defaultTotals.total += (item?.total ?? 0) - d.total
-          defaultTotals.profit += (item?.profit ?? 0) - d.profit
-          defaultTotals.discount += (item?.discount ?? 0) - d.discount
+          defaultTotals.total += (item?.total || 0) - d.total
+          defaultTotals.profit += (item?.profit || 0) - d.profit
+          defaultTotals.discount += (item?.discount || 0) - d.discount
           return { ...d, ...item }
         }
         return d
@@ -103,12 +104,15 @@ export const createOrdersSlice = (set: any): OrdersSlice => ({
         },
       }
     }),
-  deleteOrderitem: (orderId) =>
+  deleteOrderitem: (order) =>
     set((state: OrdersSlice) => ({
       currentOrder: {
         ...state?.currentOrder,
+        balance: Number(state?.currentOrder?.balance) - order?.total,
+        total: Number(state?.currentOrder?.total) - order?.total,
+        discount: Number(state?.currentOrder?.discount) - order?.discount,
         orderItems: state?.currentOrder?.orderItems?.filter(
-          (d) => d.id !== orderId
+          (d) => d.id !== order.id
         ),
       },
     })),

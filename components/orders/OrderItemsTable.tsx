@@ -56,7 +56,7 @@ const OrderItemsTable = () => {
 
   const handleRemoveItem = async () => {
     if (deleteItem?.id) {
-      deleteOrderitem(deleteItem?.id)
+      deleteOrderitem(deleteItem)
       setDeleteItem(null)
     }
   }

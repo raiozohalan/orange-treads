@@ -15,7 +15,7 @@ import classNames from "@/utils/classNames"
 import { FormAction } from "@/types/common"
 import { TabList } from "../products/ShoeSizesTab"
 import PaymentsList from "../payment/PaymentsList"
-import AddPaymentForm from "../payment/PaymentForm"
+import PaymentForm from "../payment/PaymentForm"
 import { useRouter } from "next/navigation"
 
 type CustomerDetails = Pick<Order, "customerName" | "address" | "downPayment">
@@ -187,7 +187,6 @@ const OrderForm = ({ orderId }: { orderId?: string }) => {
 
   return (
     <>
-      <AddPaymentForm />
       <form
         onSubmit={handleOnSubmit}
         className={classNames(
@@ -210,7 +209,7 @@ const OrderForm = ({ orderId }: { orderId?: string }) => {
               label="Down Payment"
               type="number"
               name="downPayment"
-              value={userDetails.downPayment || 0}
+              value={userDetails.downPayment || ""}
               onChange={handleFormChange}
               required
             />
@@ -229,7 +228,7 @@ const OrderForm = ({ orderId }: { orderId?: string }) => {
         </div>
         <hr className="flex-none border-t border-gray-700/70 mt-2" />
         <div className="flex items-center justify-between">
-          {isUpdateMode ? (
+          {isUpdateMode && (
             <TabList
               label="Sizing system"
               baseId={OrderTabs[0].id}
@@ -238,10 +237,13 @@ const OrderForm = ({ orderId }: { orderId?: string }) => {
               onSelectAction={(id) => setActiveTab(id)}
               className="bg-gray-950!"
             />
-          ) : (
-            <b className="text-white text-base leading-none">Orders:</b>
           )}
-          <div className="flex-1 flex items-center justify-end gap-2 px-4">
+          <div
+            className={classNames(
+              "flex-1 flex items-center gap-2",
+              isUpdateMode ? "justify-end px-5 mr-5 border-r border-gray-700" : "justify-start"
+            )}
+          >
             <span className="block text-base text-white font-bold">
               Total: {money(currentOrder?.total ?? 0)}
             </span>
@@ -271,7 +273,7 @@ const OrderForm = ({ orderId }: { orderId?: string }) => {
             className="gap-1! capitalize!"
           >
             <Plus className="w-4 h-4" />
-            {isOrderTab ? "Add Product" : "Add Payment"}
+            {isOrderTab ? "Add Order" : "Add Payment"}
           </Button>
         </div>
         {isOrderTab ? <OrderItemsTable /> : <PaymentsList />}
