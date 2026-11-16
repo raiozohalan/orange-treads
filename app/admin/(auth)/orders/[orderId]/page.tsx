@@ -1,18 +1,14 @@
 import OrderForm from "@/components/orders/OrderForm"
-import { ArrowRight, ChevronLeft, ChevronsRight, Table } from "react-feather"
-import AddPaymentForm from "@/components/orders/AddPayment"
+import { ChevronLeft, ChevronsRight, Table } from "react-feather"
 import Link from "next/link"
-import { useAppStore } from "@/providers/app-store-provider"
-import { FormAction } from "@/types/common"
 
 const Page = async ({ params }: { params: Promise<{ orderId: string }> }) => {
   const { orderId } = await params
-
+  console.log("Order ID from params:", orderId) // Debugging line to check the value of orderId
   return (
     <>
-      <AddPaymentForm />
       <div className="h-full min-h-0 flex flex-col items-stretch justify-start px-6 overflow-scroll bg-inherit">
-        <div className="sticky top-0 left-0 z-10 flex-none flex items-center h-12 pt-15 pb-7 font-bold bg-inherit border-b border-gray-800">
+        <div className="sticky top-0 left-0 z-10 flex-none flex items-center h-fit pt-15 pb-0 font-bold bg-inherit border-b border-gray-800">
           <div className="flex-1 flex items-center gap-2 leading-none text-gray-400 text-2xl">
             <Link href="/admin/orders" className="px-1 py-1.5 bg-transparent">
               <ChevronLeft size={28} />
@@ -22,7 +18,7 @@ const Page = async ({ params }: { params: Promise<{ orderId: string }> }) => {
             {orderId}
           </div>
         </div>
-        <div className="flex items-stretch justify-between gap-10 w-full py-8">
+        <div className="w-full pt-4 pb-8 px-3">
           <OrderForm orderId={orderId} />
         </div>
       </div>
