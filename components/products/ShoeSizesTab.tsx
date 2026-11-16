@@ -25,7 +25,7 @@ import { Button } from "../common"
 
 type TabListProps = {
   label: string
-  tabs: { id: string; label: string }[]
+  tabs: { id: string; label: string, icon: React.ReactNode }[]
   selected: string
   onSelectAction: (id: string) => void
   baseId: string
@@ -70,7 +70,7 @@ export function TabList({
   }
 
   const base =
-    "relative px-4 py-2 text-sm capitalize font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 cursor-pointer"
+    "relative flex items-center justify-center gap-2 px-4 py-2 text-sm capitalize font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 cursor-pointer"
 
   const styles = {
     list: "inline-flex gap-1 rounded-[10px] p-1 dark:bg-[rgba(33,33,34,0.8)]",
@@ -104,6 +104,7 @@ export function TabList({
             onKeyDown={(e) => handleKeyDown(e, i)}
             className={`${base} ${isSelected ? styles.active : styles.inactive}`}
           >
+            {tab.icon}
             {tab.label}
           </button>
         )
