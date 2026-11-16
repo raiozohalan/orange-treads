@@ -31,8 +31,18 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AppStoreProvider>
-          <Toaster id="top-center" visibleToasts={5} position="top-center"/>
-          <Toaster id="bottom-right" visibleToasts={5} position="bottom-right"/>
+          <Toaster
+            id="top-center"
+            visibleToasts={5}
+            position="top-center"
+            className="z-999"
+          />
+          <Toaster
+            id="bottom-right"
+            visibleToasts={5}
+            position="bottom-right"
+            className="z-999"
+          />
           {children}
         </AppStoreProvider>
       </body>
