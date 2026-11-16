@@ -15,7 +15,7 @@ import classNames from "@/utils/classNames"
 import { FormAction } from "@/types/common"
 import { TabList } from "../products/ShoeSizesTab"
 import PaymentsList from "../payment/PaymentsList"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 
 type CustomerDetails = Pick<Order, "customerName" | "address" | "downPayment">
 type OrderTotals = Pick<Order, "discount" | "profit" | "total">
@@ -55,6 +55,8 @@ const OrderTabs = [
 
 const OrderForm = ({ orderId }: { orderId?: string }) => {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const activeTab = searchParams.get('tab') ?? OrderTabs[0].id
   const currentOrder = useAppStore((state) => state.currentOrder)
   const setCurrentOrder = useAppStore((state) => state.setCurrentOrder)
   const addNewOrder = useAppStore((state) => state.addNewOrder)
@@ -62,7 +64,6 @@ const OrderForm = ({ orderId }: { orderId?: string }) => {
   const setPayment = useAppStore((state) => state.setPayment)
   const [userDetails, setUserDetails] = useState<CustomerDetails>(INITIAL_DATA)
   const [isSaving, setIsSaving] = useState<boolean>(false)
-  const [activeTab, setActiveTab] = useState(OrderTabs[0].id)
   const isOrderTab = activeTab === "order-details"
   const isUpdateMode = orderId
 
@@ -184,6 +185,13 @@ const OrderForm = ({ orderId }: { orderId?: string }) => {
     [userDetails, currentOrder]
   )
 
+  const handleUpdateTab = (tabId: string) => {
+    const searchParams = new URLSearchParams(window.location.search)
+    searchParams.set("tab", tabId)
+    const newUrl = `${window.location.pathname}?${searchParams.toString()}`
+    router.push(newUrl)
+  }
+
   return (
     <>
       <form
@@ -233,7 +241,7 @@ const OrderForm = ({ orderId }: { orderId?: string }) => {
               baseId={OrderTabs[0].id}
               tabs={OrderTabs}
               selected={activeTab}
-              onSelectAction={(id) => setActiveTab(id)}
+              onSelectAction={(id) => handleUpdateTab(id)}
               className="bg-gray-950!"
             />
           )}
