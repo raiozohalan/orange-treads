@@ -1,3 +1,5 @@
+"use client"
+
 import { useAppStore } from "@/providers/app-store-provider"
 import { Order } from "@/types/orders"
 import { Button } from "../common"
@@ -35,14 +37,6 @@ const OrderList = () => {
   const setCurrentOrder = useAppStore((state) => state.setCurrentOrder)
   const isLoading = useAppStore((state) => state.isFetchingOrders)
 
-  if (orders.length === 0) {
-    return (
-      <div className="w-full h-full flex items-start justify-center text-gray-400 text-sm">
-        No orders found.
-      </div>
-    )
-  }
-
   const handleDeleteProduct = async () => {
     if (!currentOrder?.id) return
 
@@ -55,10 +49,18 @@ const OrderList = () => {
         toasterId: "bottom-right",
       })
     } catch (error) {
-      toast.success(`Failed to delete the order ${currentOrder.customerName}`, {
+      toast.error(`Failed to delete the order ${currentOrder.customerName}`, {
         toasterId: "bottom-right",
       })
     }
+  }
+
+  if (!isLoading && orders.length === 0) {
+    return (
+      <div className="w-full h-full flex items-start justify-center text-gray-400 text-sm">
+        No orders found.
+      </div>
+    )
   }
 
   return (
