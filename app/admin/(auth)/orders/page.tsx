@@ -7,7 +7,7 @@ import { Plus, Table } from "react-feather"
 import OrderList from "@/components/orders/OrderList"
 import { useEffect } from "react"
 import { ordersFirebase } from "@/firebase/firebase-orders"
-import AddPaymentForm from "@/components/orders/AddPayment"
+import AddPaymentForm from "@/components/payment/PaymentForm"
 import { FormAction } from "@/types/common"
 
 const Page = () => {

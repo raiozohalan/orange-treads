@@ -14,7 +14,7 @@ import {
   PAYMENT_METHOD_LABELS,
   PaymentMethod,
 } from "@/types/orders"
-import ProductsModal from "./ProductsModal"
+import ProductsModal from "../orders/ProductsModal"
 import { FormAction } from "@/types/common"
 import dayjs from "dayjs"
 import Select from "../common/Select"
@@ -182,7 +182,8 @@ const AddPaymentForm = ({ onClose }: OrderFormProps) => {
                 label="Date of Payment"
                 type="date"
                 name="date"
-                value={dayjs(paymentDetails.date).format("YYYY-MM-DD")}
+                value={dayjs(paymentDetails?.date).format("YYYY-MM-DD")}
+                max={dayjs().format("YYYY-MM-DD")}
                 onChange={handleFormChange}
                 required
               />
