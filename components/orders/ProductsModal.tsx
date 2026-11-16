@@ -1,7 +1,7 @@
 import { useAppStore } from "@/providers/app-store-provider"
 import { Product, ProductType } from "@/types/products"
 import { Button } from "../common"
-import { CheckCircle, Plus } from "react-feather"
+import { Check, CheckCircle, Plus } from "react-feather"
 import { toast } from "sonner"
 import Dialog from "../common/Dialog"
 import getDialogActions from "@/utils/dialog"
@@ -12,6 +12,7 @@ import { useState } from "react"
 import { money } from "@/utils/currency"
 import Popover from "../common/Popover"
 import { ShoeSizeTabs } from "../products/ShoeSizesTab"
+import classNames from "@/utils/classNames"
 
 interface FieldConfig {
   label: string
@@ -98,6 +99,7 @@ const ProductsModal = () => {
 
 const ProductRow = ({ product }: { product: Product }) => {
   const addOrderitem = useAppStore((state) => state.addOrderitem)
+  const [isAdded, setIsAdded] = useState(false)
 
   const handleAddProduct = (productDetails: ProductDetails) => {
     if (!productDetails?.id)
@@ -117,6 +119,11 @@ const ProductRow = ({ product }: { product: Product }) => {
       productDetails,
     }
     addOrderitem(payload)
+    setIsAdded(true)
+    setTimeout(() => setIsAdded(false), 2000)
+    toast.success("Product added to order", {
+      toasterId: "bottom-right",
+    })
   }
 
   return (
@@ -136,7 +143,16 @@ const ProductRow = ({ product }: { product: Product }) => {
           <Popover
             position="bottom-right"
             label="Size"
-            className="gap-1! rounded-full! border-0! bg-blue-500 hover:bg-blue-600 text-white [&_svg]:text-white pl-3.5 pr-2"
+            className={classNames(
+              "min-w-20 min-h-8 max-h-8 gap-1! rounded-full! border-0! bg-blue-500 hover:bg-blue-600 ",
+              "text-white [&_svg]:text-white transform transition-all duration-300",
+              isAdded
+                ? "bg-green-600! justify-center"
+                : "pl-3.5 pr-2 bg-blue-500 hover:bg-blue-600"
+            )}
+            trigger={
+              isAdded ? <Check size={20} className="animate-popout" /> : null
+            }
           >
             {({ close }) => (
               <ShoeSizeTabs
@@ -165,10 +181,20 @@ const ProductRow = ({ product }: { product: Product }) => {
             variant="primary"
             size="small"
             roundedSize="full"
-            className="gap-1! pr-3! py-1.5 capitalize!"
+            className={classNames(
+              "min-w-20 min-h-8 gap-1! pr-3! py-1.5 capitalize! transform transition-all duration-300",
+              isAdded ? "bg-green-600!" : "bg-blue-500 hover:bg-blue-600"
+            )}
             onClick={() => handleAddProduct(product)}
           >
-            <Plus size={14} /> Add
+            {isAdded ? (
+              <Check size={20} className="animate-popout" />
+            ) : (
+              <>
+                <Plus size={14} />
+                Add
+              </>
+            )}{" "}
           </Button>
         )}
       </td>
