@@ -8,11 +8,15 @@ import getDialogActions from "@/utils/dialog"
 import { toast } from "sonner"
 import { Order, OrderItems } from "@/types/orders"
 import { ordersFirebase } from "@/firebase/firebase-orders"
-import { Plus } from "react-feather"
+import { CreditCard, Plus, ShoppingCart } from "react-feather"
 import OrderItemsTable from "./OrderItemsTable"
 import { money } from "@/utils/currency"
 import classNames from "@/utils/classNames"
 import { FormAction } from "@/types/common"
+import { TabList } from "../products/ShoeSizesTab"
+import PaymentsList from "../payment/PaymentsList"
+import AddPaymentForm from "../payment/PaymentForm"
+import { useRouter } from "next/navigation"
 
 type CustomerDetails = Pick<Order, "customerName" | "address" | "downPayment">
 type OrderTotals = Pick<Order, "discount" | "profit" | "total">
@@ -37,13 +41,30 @@ const getUpdatedBalance = (olddata: Order, downPayment: number): number => {
   return newBalance
 }
 
+const OrderTabs = [
+  {
+    id: "order-details",
+    label: "Order Details",
+    icon: <ShoppingCart size={16} />,
+  },
+  {
+    id: "order-payments",
+    label: "Payments",
+    icon: <CreditCard size={16} />,
+  },
+]
+
 const OrderForm = ({ orderId }: { orderId?: string }) => {
+  const router = useRouter()
   const currentOrder = useAppStore((state) => state.currentOrder)
   const setCurrentOrder = useAppStore((state) => state.setCurrentOrder)
   const addNewOrder = useAppStore((state) => state.addNewOrder)
   const updateStoredOrder = useAppStore((state) => state.updateOrder)
+  const setPayment = useAppStore((state) => state.setPayment)
   const [userDetails, setUserDetails] = useState<CustomerDetails>(INITIAL_DATA)
   const [isSaving, setIsSaving] = useState<boolean>(false)
+  const [activeTab, setActiveTab] = useState(OrderTabs[0].id)
+  const isOrderTab = activeTab === "order-details"
   const isUpdateMode = orderId
 
   useEffect(() => {
@@ -51,11 +72,19 @@ const OrderForm = ({ orderId }: { orderId?: string }) => {
       if (orderId) {
         try {
           const order = await ordersFirebase.getOrderById(orderId)
+          console.log("Fetched order details:", order)
           if (order) {
             setCurrentOrder({ ...order, type: FormAction.Update })
+          } else {
+            toast.error("Can't find order", {
+              toasterId: "bottom-right",
+            })
+            router.replace("/admin/orders")
           }
         } catch (error) {
-          // TODO: Add loading state
+          toast.error(error instanceof Error ? error.message : String(error), {
+            toasterId: "bottom-right",
+          })
         } finally {
           // TODO: Add loading state
         }
@@ -157,115 +186,140 @@ const OrderForm = ({ orderId }: { orderId?: string }) => {
   )
 
   return (
-    <form
-      onSubmit={handleOnSubmit}
-      className={classNames(
-        "relative flex-1 flex flex-col gap-4 w-full",
-        isUpdateMode ? "h-fit" : "h-auto max-h-full overflow-y-auto px-4 lg:px-6"
-      )}
-    >
-      <div className="flex items-stretch justify-between gap-2 lg:gap-7 mt-2">
-        <div className="flex-1 flex flex-col gap-2">
-          <TextField
-            label="Customer Name"
-            name="customerName"
-            value={userDetails.customerName}
-            onChange={handleFormChange}
-            required
-          />
-          <TextField
-            label="Down Payment"
-            type="number"
-            name="downPayment"
-            value={userDetails.downPayment || 0}
-            onChange={handleFormChange}
-            required
-          />
-        </div>
-        <div className="flex-1 min-h-full">
-          <TextArea
-            label="Delivery Address"
-            name="address"
-            value={userDetails.address}
-            onChange={handleFormChange}
-            className="flex-1 text-gray-300"
-            containerClassName="h-full"
-            required
-          />
-        </div>
-      </div>
-      <hr className="flex-none border-t border-gray-700/70 mt-2" />
-      <div className="flex items-center justify-between">
-        <b className="text-white text-base leading-none">Orders:</b>
-        <Button
-          type="button"
-          variant="primary"
-          size="small"
-          onClick={() => productDialogActions.open()}
-          className="gap-1! capitalize!"
-        >
-          <Plus className="w-4 h-4" />
-          Add Product
-        </Button>
-      </div>
-      <OrderItemsTable />
-      <div
+    <>
+      <AddPaymentForm />
+      <form
+        onSubmit={handleOnSubmit}
         className={classNames(
-          "flex-none flex flex-col gap-3 py-3 ",
-          isUpdateMode ? "" : "sticky bottom-0 left-0 bg-[#212122]"
+          "relative flex-1 flex flex-col gap-4 w-full",
+          isUpdateMode
+            ? "h-fit"
+            : "h-auto max-h-full overflow-y-auto px-4 lg:px-6"
         )}
       >
-        <div className="flex items-center justify-end gap-2">
-          <span className="block text-base text-white font-bold">
-            Order Total: {money(currentOrder?.total ?? 0)}
-          </span>
-          <div className="w-1.5 h-1.5 bg-gray-700 rounded-full overflow-hidden" />
-          <span className="block text-base text-white font-bold">
-            Balance:{" "}
-            {money(
-              Number(currentOrder?.total ?? 0) -
-                Number(currentOrder?.downPayment ?? 0)
-            )}
-          </span>
-          <div className="w-1.5 h-1.5 bg-gray-700 rounded-full overflow-hidden" />
-          <span className="block text-base text-green-600 font-bold">
-            Total Profit: {money(currentOrder?.profit ?? 0)}
-          </span>
+        <div className="flex items-stretch justify-between gap-2 lg:gap-7 mt-2">
+          <div className="flex-1 flex flex-col gap-2">
+            <TextField
+              label="Customer Name"
+              name="customerName"
+              value={userDetails.customerName}
+              onChange={handleFormChange}
+              required
+            />
+            <TextField
+              label="Down Payment"
+              type="number"
+              name="downPayment"
+              value={userDetails.downPayment || 0}
+              onChange={handleFormChange}
+              required
+            />
+          </div>
+          <div className="flex-1 min-h-full">
+            <TextArea
+              label="Delivery Address"
+              name="address"
+              value={userDetails.address}
+              onChange={handleFormChange}
+              className="flex-1 text-gray-300"
+              containerClassName="h-full"
+              required
+            />
+          </div>
         </div>
-        <div className="flex-none flex justify-end gap-3">
-          {!isUpdateMode && (
-            <Button
-              type="button"
-              variant="secondary"
-              size="xl"
-              fullWidth={!isUpdateMode}
-              className="min-w-48"
-              onClick={handleClose}
-            >
-              Cancel
-            </Button>
+        <hr className="flex-none border-t border-gray-700/70 mt-2" />
+        <div className="flex items-center justify-between">
+          {isUpdateMode ? (
+            <TabList
+              label="Sizing system"
+              baseId={OrderTabs[0].id}
+              tabs={OrderTabs}
+              selected={activeTab}
+              onSelectAction={(id) => setActiveTab(id)}
+              className="bg-gray-950!"
+            />
+          ) : (
+            <b className="text-white text-base leading-none">Orders:</b>
           )}
+          <div className="flex-1 flex items-center justify-end gap-2 px-4">
+            <span className="block text-base text-white font-bold">
+              Total: {money(currentOrder?.total ?? 0)}
+            </span>
+            <div className="w-1.5 h-1.5 bg-gray-700 rounded-full overflow-hidden" />
+            <span className="block text-base text-white font-bold">
+              Balance: {money(currentOrder?.balance ?? 0)}
+            </span>
+            <div className="w-1.5 h-1.5 bg-gray-700 rounded-full overflow-hidden" />
+            <span className="block text-base text-green-600 font-bold">
+              {isOrderTab
+                ? `Profit: ${money(currentOrder?.profit ?? 0)}`
+                : `Payments: ${money(Number(currentOrder?.total ?? 0) - Number(currentOrder?.balance ?? 0))}`}
+            </span>
+          </div>
           <Button
-            type="submit"
-            size="xl"
-            fullWidth={!isUpdateMode}
-            className="min-w-48"
-            disabled={isSaving}
+            type="button"
+            variant="primary"
+            size="small"
+            onClick={() =>
+              isOrderTab
+                ? productDialogActions.open()
+                : setPayment({
+                    orderId,
+                    type: FormAction.Create,
+                  })
+            }
+            className="gap-1! capitalize!"
           >
-            {isSaving ? (
-              <>
-                <LoadingSpinner className="w-4 h-4 text-white animate-spin" />{" "}
-                Saving...
-              </>
-            ) : isUpdateMode ? (
-              "Save Changes"
-            ) : (
-              "Create Order"
-            )}
+            <Plus className="w-4 h-4" />
+            {isOrderTab ? "Add Product" : "Add Payment"}
           </Button>
         </div>
-      </div>
-    </form>
+        {isOrderTab ? <OrderItemsTable /> : <PaymentsList />}
+        {
+          <div
+            className={classNames(
+              "flex-none flex flex-col gap-3 py-3 ",
+              isUpdateMode ? "" : "sticky bottom-0 left-0 bg-[#212122]"
+            )}
+          >
+            <div className="flex-none flex justify-end gap-3">
+              {!isUpdateMode && (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="xl"
+                  fullWidth={!isUpdateMode}
+                  className="min-w-48"
+                  onClick={handleClose}
+                >
+                  Cancel
+                </Button>
+              )}
+              {isOrderTab && (
+                <Button
+                  type="submit"
+                  size="xl"
+                  fullWidth={!isUpdateMode}
+                  className="min-w-48"
+                  disabled={isSaving}
+                >
+                  {isSaving ? (
+                    <>
+                      <LoadingSpinner className="w-4 h-4 text-white animate-spin" />{" "}
+                      Saving...
+                    </>
+                  ) : isUpdateMode ? (
+                    "Save Changes"
+                  ) : (
+                    "Create Order"
+                  )}
+                </Button>
+              )}
+            </div>
+          </div>
+        }
+      </form>
+    </>
   )
 }
 
