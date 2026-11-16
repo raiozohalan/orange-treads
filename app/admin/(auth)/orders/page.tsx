@@ -7,7 +7,7 @@ import { Plus, Table } from "react-feather"
 import OrderList from "@/components/orders/OrderList"
 import { useEffect } from "react"
 import { ordersFirebase } from "@/firebase/firebase-orders"
-import AddPaymentForm from "@/components/payment/PaymentForm"
+import PaymentForm from "@/components/payment/PaymentForm"
 import { FormAction } from "@/types/common"
 
 const Page = () => {
@@ -32,7 +32,7 @@ const Page = () => {
   return (
     <>
       <AddOrderFormModal />
-      <AddPaymentForm />
+      <PaymentForm />
       <div className="h-full min-h-0 flex flex-col items-stretch justify-start px-6 overflow-scroll bg-inherit">
         <div className="sticky top-0 left-0 flex-none flex items-center h-12 pt-15 pb-7 font-bold bg-inherit border-b border-gray-800">
           <div className="flex-1 flex items-center gap-2 leading-none text-gray-400 text-2xl">
