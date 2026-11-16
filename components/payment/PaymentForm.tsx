@@ -169,7 +169,7 @@ const AddPaymentForm = ({ onClose }: OrderFormProps) => {
             onSubmit={handleOnSubmit}
             className="relative flex-1 flex flex-col gap-5 h-auto max-h-full w-full px-4 lg:px-6 overflow-y-auto"
           >
-            <div className="flex-1 flex flex-col gap-2 mt-2">
+            <div className="flex-1 flex flex-col gap-2">
               <TextField
                 type="number"
                 label="Amount"

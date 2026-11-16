@@ -4,9 +4,6 @@ import { useAppStore } from "@/providers/app-store-provider"
 import { Order } from "@/types/orders"
 import { Button } from "../common"
 import { ChevronsRight, CreditCard, Trash } from "react-feather"
-import ConfirmationModal from "../common/ConfirmationModal"
-import { ordersFirebase } from "@/firebase/firebase-orders"
-import { toast } from "sonner"
 import { TableBodySkeleton } from "../common/TableSkeleton"
 import { money } from "@/utils/currency"
 import { FormAction } from "@/types/common"
@@ -32,28 +29,7 @@ const COMMON_FIELDS_COUNT = COMMON_FIELDS.length + 2
 
 const OrderList = () => {
   const orders = useAppStore((state) => state.orders)
-  const setOrders = useAppStore((state) => state.setOrders)
-  const currentOrder = useAppStore((state) => state.currentOrder)
-  const setCurrentOrder = useAppStore((state) => state.setCurrentOrder)
   const isLoading = useAppStore((state) => state.isFetchingOrders)
-
-  const handleDeleteProduct = async () => {
-    if (!currentOrder?.id) return
-
-    try {
-      await ordersFirebase.deleteOrder(currentOrder?.id)
-      const res = await ordersFirebase.getOrders()
-      if (res) setOrders(res)
-      setCurrentOrder(null)
-      toast.success(`The ${currentOrder.customerName} succesfully deleted`, {
-        toasterId: "bottom-right",
-      })
-    } catch (error) {
-      toast.error(`Failed to delete the order ${currentOrder.customerName}`, {
-        toasterId: "bottom-right",
-      })
-    }
-  }
 
   if (!isLoading && orders.length === 0) {
     return (
@@ -65,19 +41,6 @@ const OrderList = () => {
 
   return (
     <>
-      <ConfirmationModal
-        id="delete-order"
-        open={currentOrder?.type === FormAction.Delete}
-        title={`Delete ${currentOrder?.customerName}`}
-        content={
-          <>
-            Are you sure you want to delete <b>{currentOrder?.customerName}</b>{" "}
-            order?
-          </>
-        }
-        onSuccessAwait={handleDeleteProduct}
-        onCancel={() => setCurrentOrder(null)}
-      />
       <table className="border-collapse border border-gray-600 w-full h-fit">
         <thead>
           <tr>

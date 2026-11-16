@@ -22,7 +22,7 @@ export interface OrdersSlice {
   setOrders: (orders: OrderWithAuditFields[]) => void
   addNewOrder: (orders: OrderWithAuditFields) => void
   currentOrder: OrderForm | null
-  setCurrentOrder: (order: OrderForm | null) => void
+  setCurrentOrder: (order: Partial<OrderForm> | null) => void
   addOrderitem: (order: OrderItems) => void
   updateOrderitem: (order: Partial<OrderItems>) => void
   deleteOrderitem: (orderId: OrderItems) => void
@@ -69,7 +69,11 @@ export const createOrdersSlice = (set: any): OrdersSlice => ({
   addNewOrder: (newOrder: OrderWithAuditFields) =>
     set((state: OrdersSlice) => ({ orders: [...state.orders, newOrder] })),
   currentOrder: null,
-  setCurrentOrder: (order) => set({ currentOrder: order }),
+  setCurrentOrder: (order) =>
+    set((state: OrdersSlice) => ({
+      currentOrder:
+        order === null ? null : { ...state?.currentOrder, ...order },
+    })),
   addOrderitem: (item) =>
     set((state: OrdersSlice) => ({
       currentOrder: {

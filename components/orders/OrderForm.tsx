@@ -15,7 +15,6 @@ import classNames from "@/utils/classNames"
 import { FormAction } from "@/types/common"
 import { TabList } from "../products/ShoeSizesTab"
 import PaymentsList from "../payment/PaymentsList"
-import PaymentForm from "../payment/PaymentForm"
 import { useRouter } from "next/navigation"
 
 type CustomerDetails = Pick<Order, "customerName" | "address" | "downPayment">
@@ -241,7 +240,9 @@ const OrderForm = ({ orderId }: { orderId?: string }) => {
           <div
             className={classNames(
               "flex-1 flex items-center gap-2",
-              isUpdateMode ? "justify-end px-5 mr-5 border-r border-gray-700" : "justify-start"
+              isUpdateMode
+                ? "justify-end px-5 mr-5 border-r border-gray-700"
+                : "justify-start"
             )}
           >
             <span className="block text-base text-white font-bold">

@@ -31,8 +31,6 @@ const Page = () => {
 
   return (
     <>
-      <AddOrderFormModal />
-      <PaymentForm />
       <div className="h-full min-h-0 flex flex-col items-stretch justify-start px-6 overflow-scroll bg-inherit">
         <div className="sticky top-0 left-0 flex-none flex items-center h-12 pt-15 pb-7 font-bold bg-inherit border-b border-gray-800">
           <div className="flex-1 flex items-center gap-2 leading-none text-gray-400 text-2xl">
